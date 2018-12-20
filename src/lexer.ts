@@ -1,17 +1,13 @@
 import Reader from './reader'
 import Token from './token'
 import NextState from './next-state'
-
-function isNewLine(c: string): boolean {
-  return c === '\r' || c === '\n'
-}
+import { EOS_FLAG } from './constants'
+import { isNewLine } from './strings'
 
 interface Cursor {
   line: number
   column: number
 }
-
-const EOS_FLAG = '-1'
 
 export default class Lexer {
   private reader: Reader
@@ -46,14 +42,15 @@ export default class Lexer {
       this.cursor.column += 1
     }
 
-    return { char, isEOS }
+    const c = isEOS ? EOS_FLAG : char
+    return { char: c, isEOS }
   }
 
+  // Looks at the next character and then goes back
   private peek(): string {
     const { char, isEOS } = this.next()
-    if (isEOS) {
+    if (!isEOS) {
       this.backup(1)
-      return EOS_FLAG
     }
 
     return char
