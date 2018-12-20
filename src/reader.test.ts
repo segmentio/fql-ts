@@ -42,3 +42,39 @@ test('A reader can read all the characters in a string', () => {
   expect(char).toBe('c')
   expect(isEOS).toBe(false)
 })
+
+test('We read a char and then unread a char', () => {
+  const reader = new Reader('abc')
+  const { char: readChar } = reader.readChar() // a
+  const { char: unreadChar } = reader.unreadChar() // b
+
+  expect(readChar).toBe('a')
+  expect(unreadChar).toBe('b')
+})
+
+test('Unreading a char will move the position back', () => {
+  const reader = new Reader('abc')
+
+  // Sanity
+  expect(reader.getPosition()).toBe(0)
+
+  // Move forward
+  reader.readChar()
+  expect(reader.getPosition()).toBe(1)
+  reader.readChar()
+  expect(reader.getPosition()).toBe(2)
+
+  // Move backwards
+  reader.unreadChar()
+  expect(reader.getPosition()).toBe(1)
+  reader.unreadChar()
+  expect(reader.getPosition()).toBe(0)
+})
+
+test('Unreading a char too far will throw a rangeError', () => {
+  expect(() => {
+    const reader = new Reader('a')
+    reader.unreadChar()
+    reader.unreadChar()
+  }).toThrowError(RangeError)
+})
