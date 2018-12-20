@@ -6,7 +6,9 @@
   "bin": "dist/src/index.js",
   "license": "private",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "rm -rf dist && tsc",
+    "lint": "tslint src/**/*.ts"
   },
   "files": [
     "package.json",
