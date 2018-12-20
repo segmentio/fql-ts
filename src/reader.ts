@@ -12,7 +12,7 @@ export default class Reader {
     this.position = 0
   }
 
-  public readChar(): ReaderState {
+  public forward(): ReaderState {
     if (this.code.length === this.position) {
       return { char: '', isEOS: true }
     }
@@ -26,7 +26,7 @@ export default class Reader {
     }
   }
 
-  public unreadChar(): ReaderState {
+  public backward(): ReaderState {
     if (this.position === 0) {
       throw new RangeError()
     }

@@ -8,7 +8,7 @@ test('A new reader has a 0 position and a set code', () => {
 
 test('A reader can read a character and move its position', () => {
   const reader = new Reader('some text')
-  const { char, isEOS } = reader.readChar()
+  const { char, isEOS } = reader.forward()
 
   // The overall code shouldn't be effected
   expect(reader.code).toBe('some text')
@@ -25,7 +25,7 @@ test('A reader can read a character and move its position', () => {
 
 test('An empty reader will not advance the position', () => {
   const reader = new Reader('')
-  const { char, isEOS } = reader.readChar()
+  const { char, isEOS } = reader.forward()
 
   expect(isEOS).toBeTruthy()
   expect(char).toBe('')
@@ -35,9 +35,9 @@ test('An empty reader will not advance the position', () => {
 test('A reader can read all the characters in a string', () => {
   const reader = new Reader('abc')
 
-  reader.readChar() // a
-  reader.readChar() // b
-  const { char, isEOS } = reader.readChar() // c
+  reader.forward() // a
+  reader.forward() // b
+  const { char, isEOS } = reader.forward() // c
 
   expect(char).toBe('c')
   expect(isEOS).toBe(false)
@@ -45,8 +45,8 @@ test('A reader can read all the characters in a string', () => {
 
 test('We read a char and then unread a char', () => {
   const reader = new Reader('abc')
-  const { char: readChar } = reader.readChar() // a
-  const { char: unreadChar } = reader.unreadChar() // b
+  const { char: readChar } = reader.forward() // a
+  const { char: unreadChar } = reader.backward() // b
 
   expect(readChar).toBe('a')
   expect(unreadChar).toBe('b')
@@ -59,22 +59,22 @@ test('Unreading a char will move the position back', () => {
   expect(reader.getPosition()).toBe(0)
 
   // Move forward
-  reader.readChar()
+  reader.forward()
   expect(reader.getPosition()).toBe(1)
-  reader.readChar()
+  reader.forward()
   expect(reader.getPosition()).toBe(2)
 
   // Move backwards
-  reader.unreadChar()
+  reader.backward()
   expect(reader.getPosition()).toBe(1)
-  reader.unreadChar()
+  reader.backward()
   expect(reader.getPosition()).toBe(0)
 })
 
 test('Unreading a char too far will throw a rangeError', () => {
   expect(() => {
     const reader = new Reader('a')
-    reader.unreadChar()
-    reader.unreadChar()
+    reader.backward()
+    reader.backward()
   }).toThrowError(RangeError)
 })
