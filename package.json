@@ -19,6 +19,36 @@
     "@types/jest": "^23.3.10",
     "jest": "^23.6.0",
     "ts-jest": "^23.10.5",
+    "tslint": "^5.12.0",
+    "tslint-config-prettier": "^1.17.0",
     "typescript": "^3.2.2"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 100
+  },
+  "lint-staged": {
+    "linters": {
+      "*.ts": [
+        "yarn lint",
+        "prettier --write",
+        "git add"
+      ],
+      "*.json": [
+        "prettier --write",
+        "git add"
+      ]
+    },
+    "ignore": [
+      "examples/**/generated/**",
+      "**/__snapshots__/**"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS; printf \"\n\n\""
+    }
   }
 }
