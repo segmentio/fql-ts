@@ -1,0 +1,16 @@
+{
+  "name": "fql-ts",
+  "version": "1.0.0",
+  "main": "dist/src/index.js",
+  "browser": "dist/src/index.js",
+  "bin": "dist/src/index.js",
+  "license": "private",
+  "files": [
+    "package.json",
+    "dist",
+    "src"
+  ],
+  "devDependencies": {
+    "typescript": "^3.2.2"
+  }
+}
