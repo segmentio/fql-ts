@@ -1,4 +1,4 @@
-export enum Tokens {
+enum Token {
   Err = 'err',
   Ident = 'ident',
   Dot = 'dot',
@@ -13,3 +13,5 @@ export enum Tokens {
   Comma = 'comma',
   EOS = 'eos'
 }
+
+export default Token

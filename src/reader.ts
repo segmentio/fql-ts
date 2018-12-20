@@ -1,7 +1,4 @@
-interface ReaderState {
-  char: string
-  isEOS: boolean
-}
+import NextState from './next-state'
 
 export default class Reader {
   public code: string
@@ -12,7 +9,7 @@ export default class Reader {
     this.position = 0
   }
 
-  public forward(): ReaderState {
+  public forward(): NextState {
     if (this.code.length === this.position) {
       return { char: '', isEOS: true }
     }
@@ -26,7 +23,7 @@ export default class Reader {
     }
   }
 
-  public backward(): ReaderState {
+  public backward(): NextState {
     if (this.position === 0) {
       throw new RangeError()
     }
