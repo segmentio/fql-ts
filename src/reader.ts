@@ -1,0 +1,42 @@
+interface ReaderState {
+  char: string;
+  isEOS: boolean;
+}
+
+export default class Reader {
+  code: string;
+  position: number;
+
+  constructor(code: string) {
+    this.code = code;
+    this.position = 0;
+  }
+
+  readChar(): ReaderState {
+    if (this.code.length === this.position) {
+      return { char: "", isEOS: true };
+    }
+
+    const char = this.code.charAt(this.position);
+    this.position += 1;
+
+    return {
+      char,
+      isEOS: false
+    };
+  }
+
+  unreadChar(): ReaderState {
+    if (this.position === 0) {
+      throw new RangeError();
+    }
+
+    const char = this.code.charAt(this.position);
+    this.position -= 1;
+
+    return {
+      char,
+      isEOS: false
+    };
+  }
+}
