@@ -1,8 +1,8 @@
 import Reader from './reader'
-import Token from './token'
+import { Token, TokenType } from './token'
 import NextState from './next-state'
 import { EOS_FLAG } from './constants'
-import { isNewLine, isAlpha } from './strings'
+import { isNewLine, isAlpha, isTerminator } from './strings'
 
 interface Cursor {
   line: number
@@ -33,11 +33,11 @@ export default class Lexer {
   }
 
   public lex(): Token[] {
-    const tokens = []
+    const tokens: Token[] = []
 
     const { char, isEOS } = this.next()
     if (isEOS) {
-      tokens.push(Token.EOS)
+      tokens.push({ type: TokenType.EOS, value: 'eos' })
       return tokens
     }
 
@@ -50,7 +50,7 @@ export default class Lexer {
 
   private lexOperator(char: string): Token {
     if (char === '=') {
-      return Token.Operator
+      return { type: TokenType.Operator, value: '=' }
     }
 
     if (char === '!') {
@@ -58,12 +58,43 @@ export default class Lexer {
       if (c !== '=') {
         throw new LexerError(`expected '=' after '!', got '${c}'`, this.cursor)
       }
+
+      return { type: TokenType.Operator, value: '!=' }
+    }
+
+    if (char === 'a') {
+      if (this.accept('nd')) {
+        return { type: TokenType.Operator, value: 'and' }
+      }
+
+      // TODO grab ident
     }
   }
 
   /**
    * Helpers
    */
+
+  // Attempts to advance the string, rolls back and returns false if it can't.
+  private accept(str: string): boolean {
+    let chars = ''
+
+    for (const _ of str) {
+      const { char, isEOS } = this.next()
+      if (isEOS || isTerminator(char)) {
+        return false
+      }
+
+      chars += char
+    }
+
+    if (str === chars && isTerminator(this.peek())) {
+      return true
+    }
+
+    this.backup(str.length)
+    return false
+  }
 
   private next(): NextState {
     const { char, isEOS } = this.reader.forward()

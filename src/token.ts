@@ -1,4 +1,9 @@
-enum Token {
+export interface Token {
+  type: TokenType
+  value: string
+}
+
+export enum TokenType {
   Err = 'err',
   Ident = 'ident',
   Dot = 'dot',
@@ -13,5 +18,3 @@ enum Token {
   Comma = 'comma',
   EOS = 'eos'
 }
-
-export default Token
