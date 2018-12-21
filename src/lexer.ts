@@ -52,35 +52,45 @@ export default class Lexer {
 
       if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
         tokens.push(this.lexOperator(char))
+        continue
       }
 
       if (isNumber(char) || char === '-' || char === '+') {
         tokens.push(this.lexNumber(char))
+        continue
       }
 
       if (char === '"') {
         tokens.push(this.lexString())
+        continue
       }
 
       if (char === '[') {
         tokens.push(t.BrackLeft())
+        continue
       }
 
       if (char === ']') {
         tokens.push(t.BrackRight())
+        continue
       }
 
       if (char === ',') {
         tokens.push(t.Comma())
+        continue
       }
 
       if (char === '(') {
         tokens.push(t.ParenLeft())
+        continue
       }
 
       if (char === ')') {
         tokens.push(t.ParenRight())
+        continue
       }
+
+      throw new LexerError(`invalid character "${char}"`, this.cursor)
     }
   }
 

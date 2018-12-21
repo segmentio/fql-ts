@@ -38,7 +38,16 @@ test('Lexer passes error fixtures', () => {
     fix('5. ', [], true),
     fix('5.0.', [], true),
     fix('5.0.0.0', [], true),
-    fix('!', [], true)
+    fix('!', [], true),
+
+    // Invalid characters
+    fix('$', [], true),
+    fix('@', [], true),
+    fix('#', [], true),
+    fix('*', [], true),
+    fix('`', [], true),
+    fix('\\', [], true),
+    fix('/', [], true)
   ])
 })
 
