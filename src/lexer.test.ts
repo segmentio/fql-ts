@@ -164,7 +164,7 @@ test('Lexer passes misc fixtures', () => {
   ])
 })
 
-test('Lexer passes misc fixtures', () => {
+test('Lexer passes dot fixtures', () => {
   testFixtures([
     fix('.', [t.Dot(), t.EOS()], false),
     fix('. ', [t.Dot(), t.EOS()], false),
