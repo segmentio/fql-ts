@@ -1,10 +1,9 @@
 {
-  "name": "@segmentio/fql",
+  "name": "@segment/fql",
   "version": "1.0.2",
   "main": "dist/src/index.js",
   "browser": "dist/src/index.js",
   "bin": "dist/src/index.js",
-  "private": true,
   "scripts": {
     "test": "jest",
     "build": "rm -rf dist && tsc",
