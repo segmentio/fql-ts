@@ -18,7 +18,7 @@ also be used to give our FQL in-browser REPLs and integrate into existing toolin
 To convert some code into some strings, you can use `lex`:
 
 ```js
-import { lex } from 'fql-ts'
+import { lex } from '@segmentio/fql'
 
 const { tokens } = lex('message.event > 30')
 ```
@@ -40,7 +40,7 @@ In `fql-ts`, a token is an object with a `value` and an enum `type`.
 For example, a string like `"Order Completed"` has a token that looks like this:
 
 ```js
-import { types } from 'fql-ts'
+import { types } from '@segmentio/fql'
 
 {
     type: types.String,
@@ -62,7 +62,7 @@ But `fql-ts` also comes with helper functions to create tokens. We can create
 that same String token with:
 
 ```js
-import { t } from 'fql-ts'
+import { t } from '@segmentio/fql'
 
 t.String('"Order Completed"')
 ```
@@ -120,7 +120,7 @@ This is pretty helpful for _generating_ FQL code, either through UI pieces
 or programatically.
 
 ```js
-import { lex, unlex } from 'fql-ts'
+import { lex, unlex } from '@segmentio/fql'
 
 const { tokens } = lex('some.code >= 30')
 const { code } = unlex(tokens)

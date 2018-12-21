@@ -1,5 +1,5 @@
 {
-  "name": "fql-ts",
+  "name": "@segmentio/fql",
   "version": "1.0.1",
   "main": "dist/src/index.js",
   "browser": "dist/src/index.js",
