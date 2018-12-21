@@ -18,17 +18,32 @@ function fix(code: string, tokens: Token[], throws: boolean): Fixture {
 test('Lexer passes fixtures', () => {
   const fixtures: Fixture[] = [
     fix('', [{ type: TokenType.EOS, value: 'eos' }], false),
+    fix('   ', [{ type: TokenType.EOS, value: 'eos' }], false),
 
     // Operators
     fix('=', [t.Operator('='), t.EOS()], false),
     fix('!=', [t.Operator('!='), t.EOS()], false),
     fix('and', [t.Operator('and'), t.EOS()], false),
+    fix('or', [t.Operator('or'), t.EOS()], false),
+    fix('<=', [t.Operator('<='), t.EOS()], false),
+    fix('>=', [t.Operator('>='), t.EOS()], false),
+    fix('<', [t.Operator('<'), t.EOS()], false),
+    fix('>', [t.Operator('>'), t.EOS()], false),
 
-    // idents
+    // a-starting idents (not and)
     fix('anna', [t.Ident('anna'), t.EOS()], false),
     fix('anna ', [t.Ident('anna'), t.EOS()], false),
-
     fix('anna abba', [t.Ident('anna'), t.Ident('abba'), t.EOS()], false),
+
+    // o-starting idents (not or)
+    fix('orange', [t.Ident('orange'), t.EOS()], false),
+    fix('orange ', [t.Ident('orange'), t.EOS()], false),
+    fix('or orange ', [t.Operator('or'), t.Ident('orange'), t.EOS()], false),
+    fix('orange', [t.Ident('orange'), t.EOS()], false),
+
+    // regular idents
+    fix('zed', [t.Ident('zed'), t.EOS()], false),
+    fix('bed zed', [t.Ident('bed'), t.Ident('zed'), t.EOS()], false),
 
     // errors
     fix('!', [], true)

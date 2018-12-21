@@ -2,7 +2,7 @@ import Reader from './reader'
 import { Token, t } from './token'
 import NextState from './next-state'
 import { EOS_FLAG } from './constants'
-import { isNewLine, isAlpha, isTerminator, isIdent, isWhitespace } from './strings'
+import { isNewLine, isAlpha, isTerminator, isIdent, isWhitespace, isNumber } from './strings'
 
 const MAXIMUM_INDENT_LENGTH = 2000 // bug catcher
 
@@ -44,12 +44,12 @@ export default class Lexer {
         return tokens
       }
 
-      if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
-        tokens.push(this.lexOperator(char))
-      }
-
       if (isWhitespace(char)) {
         continue
+      }
+
+      if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
+        tokens.push(this.lexOperator(char))
       }
     }
 
@@ -57,18 +57,21 @@ export default class Lexer {
   }
 
   private lexOperator(previous: string): Token {
+    // =
     if (previous === '=') {
       return t.Operator('=')
     }
 
+    // !=
     if (previous === '!') {
-      if (!this.accept('=')) {
-        throw new LexerError(`expected '=' after '!', got '${this.peek()}'`, this.cursor)
+      if (this.accept('=')) {
+        return t.Operator('!=')
       }
 
-      return t.Operator('!=')
+      throw new LexerError(`expected '=' after '!', got '${this.peek()}'`, this.cursor)
     }
 
+    // and
     if (previous === 'a') {
       if (this.accept('nd')) {
         return t.Operator('and')
@@ -76,6 +79,27 @@ export default class Lexer {
 
       return this.lexIdent(previous)
     }
+
+    // or
+    if (previous === 'o') {
+      if (this.accept('r')) {
+        return t.Operator('or')
+      }
+
+      return this.lexIdent(previous)
+    }
+
+    // <=, >=, <, >
+    if (previous === '<' || previous === '>') {
+      if (this.accept('=')) {
+        return t.Operator(previous + '=')
+      }
+
+      return t.Operator(previous)
+    }
+
+    // all other idents
+    return this.lexIdent(previous)
   }
 
   private lexIdent(previous: string): Token {
