@@ -3,6 +3,7 @@ export interface Token {
   value: string
 }
 
+// All available tokens forms
 export enum TokenType {
   Err = 'err',
   Ident = 'ident',

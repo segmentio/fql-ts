@@ -24,7 +24,26 @@ export class LexerError extends Error {
   }
 }
 
-export default class Lexer {
+interface LexResponse {
+  tokens: Token[]
+  error?: LexerError
+}
+
+/**
+ * Converts FQL code into tokens.
+ * @param code the FQL code to convert
+ * @throws LexerError if something goes wrong
+ */
+export default function lex(code: string): LexResponse {
+  try {
+    const lexer = new Lexer(code)
+    return { tokens: lexer.lex() }
+  } catch (error) {
+    return { tokens: [], error }
+  }
+}
+
+export class Lexer {
   private reader: Reader
   private cursor: Cursor
 

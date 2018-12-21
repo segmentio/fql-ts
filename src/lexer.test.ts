@@ -1,4 +1,4 @@
-import Lexer, { LexerError } from './lexer'
+import { LexerError, Lexer } from './lexer'
 import { Token, t } from './token'
 
 interface Fixture {
