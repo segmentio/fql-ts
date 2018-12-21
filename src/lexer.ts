@@ -53,7 +53,7 @@ export default class Lexer {
         tokens.push(this.lexOperator(char))
       }
 
-      if (isNumber(char)) {
+      if (isNumber(char) || char === '-' || char === '+') {
         tokens.push(this.lexNumber(char))
       }
     }
@@ -63,13 +63,31 @@ export default class Lexer {
 
   private lexNumber(previous: string): Token {
     let str = ''
-    while (isNumber(this.peek())) {
+    let comingUp: string = this.peek()
+    let isDecimal = false
+    while (isNumber(comingUp) || comingUp === '.') {
       const { char } = this.next()
       str += char
 
+      // Prevent multiple decimal points and stray decimal points
+      if (comingUp === '.') {
+        if (isTerminator(this.peek())) {
+          throw new LexerError('unexpected terminator after decimal point', this.cursor)
+        }
+
+        if (isDecimal) {
+          throw new LexerError('multiple decimal points in one number', this.cursor)
+        }
+
+        isDecimal = true
+      }
+
+      // Prevent infinite loops
       if (str.length >= MAXIMUM_NUMBER_LENGTH) {
         throw new LexerError('unreasonable number length', this.cursor)
       }
+
+      comingUp = this.peek()
     }
 
     return t.Number(previous + str)
@@ -156,10 +174,6 @@ export default class Lexer {
         `expected termination character after identifier, got ${comingUp}`,
         this.cursor
       )
-    }
-
-    if (str === 'null') {
-      return t.Null()
     }
 
     return t.Ident(previous + str)

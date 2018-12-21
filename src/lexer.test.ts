@@ -57,12 +57,30 @@ test('Lexer passes fixtures', () => {
     fix('Infinity', [t.Ident('Infinity'), t.EOS()], false),
     fix('undefined', [t.Ident('undefined'), t.EOS()], false),
 
-    // Numbers
+    // Integers
     fix('1', [t.Number('1'), t.EOS()], false),
     fix('9', [t.Number('9'), t.EOS()], false),
     fix('0', [t.Number('0'), t.EOS()], false),
+    fix('10', [t.Number('10'), t.EOS()], false),
+    fix('10 10', [t.Number('10'), t.Number('10'), t.EOS()], false),
+    fix('10000000 10', [t.Number('10000000'), t.Number('10'), t.EOS()], false),
+
+    // Decimals
+    fix('0.4', [t.Number('0.4'), t.EOS()], false),
+    fix('0.4 10.4', [t.Number('0.4'), t.Number('10.4'), t.EOS()], false),
+
+    // Negatives and positives
+    fix('-4', [t.Number('-4'), t.EOS()], false),
+    fix('+5', [t.Number('+5'), t.EOS()], false),
+
+    // Negative and positive decimals
+    fix('+5.4', [t.Number('+5.4'), t.EOS()], false),
+    fix('-3.2', [t.Number('-3.2'), t.EOS()], false),
 
     // errors
+    fix('5.', [], true),
+    fix('5.0.', [], true),
+    fix('5.0.0.0', [], true),
     fix('!', [], true)
   ]
 
