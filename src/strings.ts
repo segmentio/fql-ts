@@ -13,10 +13,18 @@ export function isAlpha(c: string): boolean {
 }
 
 export function isNumber(c: string): boolean {
+  if (c === EOS_FLAG) {
+    return false
+  }
+
   return !!Number(c)
 }
 
 export function isIdent(c: string): boolean {
+  if (c === EOS_FLAG) {
+    return false
+  }
+
   return isAlpha(c) || isNumber(c) || c === '_' || c === '-'
 }
 

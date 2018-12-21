@@ -2,7 +2,9 @@ import Reader from './reader'
 import { Token, TokenType } from './token'
 import NextState from './next-state'
 import { EOS_FLAG } from './constants'
-import { isNewLine, isAlpha, isTerminator } from './strings'
+import { isNewLine, isAlpha, isTerminator, isIdent } from './strings'
+
+const MAXIMUM_INDENT_LENGTH = 2000 // bug catcher
 
 interface Cursor {
   line: number
@@ -48,12 +50,12 @@ export default class Lexer {
     return tokens
   }
 
-  private lexOperator(char: string): Token {
-    if (char === '=') {
+  private lexOperator(previous: string): Token {
+    if (previous === '=') {
       return { type: TokenType.Operator, value: '=' }
     }
 
-    if (char === '!') {
+    if (previous === '!') {
       const c = this.peek()
       if (c !== '=') {
         throw new LexerError(`expected '=' after '!', got '${c}'`, this.cursor)
@@ -62,13 +64,48 @@ export default class Lexer {
       return { type: TokenType.Operator, value: '!=' }
     }
 
-    if (char === 'a') {
+    if (previous === 'a') {
       if (this.accept('nd')) {
         return { type: TokenType.Operator, value: 'and' }
       }
 
-      // TODO grab ident
+      return this.lexIdent(previous)
     }
+  }
+
+  private lexIdent(previous: string): Token {
+    let str = ''
+    while (isIdent(this.peek())) {
+      const { char } = this.next()
+      str += char
+
+      if (str.length >= MAXIMUM_INDENT_LENGTH) {
+        throw new LexerError('unreasonable literal length', this.cursor)
+      }
+    }
+
+    const comingUp: string = this.peek()
+    if (
+      !(
+        comingUp === EOS_FLAG ||
+        isTerminator(comingUp) ||
+        comingUp === '.' ||
+        comingUp === '(' ||
+        comingUp === '=' ||
+        comingUp === '!'
+      )
+    ) {
+      throw new LexerError(
+        `expected termination character after identifier, got ${comingUp}`,
+        this.cursor
+      )
+    }
+
+    if (str === 'null') {
+      return { type: TokenType.Null, value: 'null' }
+    }
+
+    return { type: TokenType.Ident, value: previous + str }
   }
 
   /**

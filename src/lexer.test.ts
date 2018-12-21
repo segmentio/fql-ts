@@ -1,32 +1,48 @@
 import Lexer, { LexerError } from './lexer'
-import { TokenType } from './token'
+import { Token, TokenType } from './token'
 
-test('Lexer returns an EOS on an empty string', () => {
-  const lexer = new Lexer('')
+interface Fixture {
+  code: string
+  tokens: Token[]
+  throws: boolean
+}
 
-  expect(lexer.lex()).toEqual([{ type: TokenType.EOS, value: 'eos' }])
-})
+function fix(code: string, tokens: Token[], throws: boolean): Fixture {
+  return {
+    code,
+    tokens,
+    throws
+  }
+}
 
-test('Lexer returns an operator on "="', () => {
-  const lexer = new Lexer('=')
+test('Lexer passes fixtures', () => {
+  const fixtures: Fixture[] = [
+    fix('', [{ type: TokenType.EOS, value: 'eos' }], false),
 
-  expect(lexer.lex()).toEqual([{ type: TokenType.Operator, value: '=' }])
-})
+    // Operators
+    fix('=', [{ type: TokenType.Operator, value: '=' }], false),
+    fix('!=', [{ type: TokenType.Operator, value: '!=' }], false),
+    fix('and', [{ type: TokenType.Operator, value: 'and' }], false),
 
-test('Lexer returns an operator on "="', () => {
-  const lexer = new Lexer('!=')
+    // idents
+    fix('anna', [{ type: TokenType.Ident, value: 'anna' }], false),
+    fix('anna(', [{ type: TokenType.Ident, value: 'anna' }], false),
+    fix('anna.', [{ type: TokenType.Ident, value: 'anna' }], false),
+    fix('anna!', [{ type: TokenType.Ident, value: 'anna' }], false),
+    fix('anna=', [{ type: TokenType.Ident, value: 'anna' }], false),
+    fix('anna ', [{ type: TokenType.Ident, value: 'anna' }], false),
 
-  expect(lexer.lex()).toEqual([{ type: TokenType.Operator, value: '!=' }])
-})
+    // errors
+    fix('!', [{ type: TokenType.Operator, value: '!=' }], true)
+  ]
 
-test('Lexer returns an operator on "="', () => {
-  const lexer = new Lexer('and')
+  for (const { code, throws, tokens } of fixtures) {
+    const lexer = new Lexer(code)
+    if (throws) {
+      expect(() => lexer.lex()).toThrowError(LexerError)
+      continue
+    }
 
-  expect(lexer.lex()).toEqual([{ type: TokenType.Operator, value: 'and' }])
-})
-
-test('Lexer throws an error on "!" with no "="', () => {
-  const lexer = new Lexer('!')
-
-  expect(() => lexer.lex()).toThrowError(LexerError)
+    expect(lexer.lex()).toEqual(tokens)
+  }
 })
