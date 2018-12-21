@@ -4,7 +4,8 @@ import NextState from './next-state'
 import { EOS_FLAG } from './constants'
 import { isNewLine, isAlpha, isTerminator, isIdent, isWhitespace, isNumber } from './strings'
 
-const MAXIMUM_INDENT_LENGTH = 2000 // bug catcher
+const MAXIMUM_INDENT_LENGTH = 50000 // bug catcher
+const MAXIMUM_NUMBER_LENGTH = 50000
 
 interface Cursor {
   line: number
@@ -51,9 +52,27 @@ export default class Lexer {
       if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
         tokens.push(this.lexOperator(char))
       }
+
+      if (isNumber(char)) {
+        tokens.push(this.lexNumber(char))
+      }
     }
 
     return tokens
+  }
+
+  private lexNumber(previous: string): Token {
+    let str = ''
+    while (isNumber(this.peek())) {
+      const { char } = this.next()
+      str += char
+
+      if (str.length >= MAXIMUM_NUMBER_LENGTH) {
+        throw new LexerError('unreasonable number length', this.cursor)
+      }
+    }
+
+    return t.Number(previous + str)
   }
 
   private lexOperator(previous: string): Token {
@@ -84,6 +103,15 @@ export default class Lexer {
     if (previous === 'o') {
       if (this.accept('r')) {
         return t.Operator('or')
+      }
+
+      return this.lexIdent(previous)
+    }
+
+    // null
+    if (previous === 'n') {
+      if (this.accept('ull')) {
+        return t.Null()
       }
 
       return this.lexIdent(previous)

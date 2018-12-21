@@ -17,7 +17,7 @@ export function isNumber(c: string): boolean {
     return false
   }
 
-  return !!Number(c)
+  return !isNaN(parseFloat(c)) && isFinite(parseInt(c, 10))
 }
 
 export function isIdent(c: string): boolean {

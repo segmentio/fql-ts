@@ -30,7 +30,11 @@ test('Lexer passes fixtures', () => {
     fix('<', [t.Operator('<'), t.EOS()], false),
     fix('>', [t.Operator('>'), t.EOS()], false),
 
+    // null
+    fix('null', [t.Null(), t.EOS()], false),
+
     // a-starting idents (not and)
+    fix('andeverything', [t.Ident('andeverything'), t.EOS()], false),
     fix('anna', [t.Ident('anna'), t.EOS()], false),
     fix('anna ', [t.Ident('anna'), t.EOS()], false),
     fix('anna abba', [t.Ident('anna'), t.Ident('abba'), t.EOS()], false),
@@ -41,9 +45,22 @@ test('Lexer passes fixtures', () => {
     fix('or orange ', [t.Operator('or'), t.Ident('orange'), t.EOS()], false),
     fix('orange', [t.Ident('orange'), t.EOS()], false),
 
+    // n-starting idents (not null)
+    fix('normandy', [t.Ident('normandy'), t.EOS()], false),
+    fix('nullify', [t.Ident('nullify'), t.EOS()], false),
+
     // regular idents
     fix('zed', [t.Ident('zed'), t.EOS()], false),
     fix('bed zed', [t.Ident('bed'), t.Ident('zed'), t.EOS()], false),
+
+    // Dangerous idents for stupid javascript reasons
+    fix('Infinity', [t.Ident('Infinity'), t.EOS()], false),
+    fix('undefined', [t.Ident('undefined'), t.EOS()], false),
+
+    // Numbers
+    fix('1', [t.Number('1'), t.EOS()], false),
+    fix('9', [t.Number('9'), t.EOS()], false),
+    fix('0', [t.Number('0'), t.EOS()], false),
 
     // errors
     fix('!', [], true)
