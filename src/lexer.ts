@@ -246,7 +246,7 @@ export default class Lexer {
       return true
     }
 
-    this.backup(str.length)
+    this.backup(chars.length)
     return false
   }
 
