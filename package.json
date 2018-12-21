@@ -4,7 +4,7 @@
   "main": "dist/src/index.js",
   "browser": "dist/src/index.js",
   "bin": "dist/src/index.js",
-  "license": "private",
+  "private": true,
   "scripts": {
     "test": "jest",
     "build": "rm -rf dist && tsc",
