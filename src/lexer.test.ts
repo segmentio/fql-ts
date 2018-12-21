@@ -54,7 +54,7 @@ test('Lexer passes error fixtures', () => {
 test('Lexer passes ident fixtures', () => {
   testFixtures([
     // a-starting idents (not and)
-    // fix('a b', [t.Ident('a'), t.Ident('b'), t.EOS()], false),
+    fix('a b', [t.Ident('a'), t.Ident('b'), t.EOS()], false),
     fix('andeverything', [t.Ident('andeverything'), t.EOS()], false),
     fix('anna', [t.Ident('anna'), t.EOS()], false),
     fix('anna ', [t.Ident('anna'), t.EOS()], false),
