@@ -172,3 +172,61 @@ test('Lexer passes dot fixtures', () => {
     fix('message.event', [t.Ident('message'), t.Dot(), t.Ident('event'), t.EOS()], false)
   ])
 })
+
+// Don't screw with any of the whitespace here, that's the point of the test
+test('Lexer passes new line fixtures', () => {
+  testFixtures([
+    fix(
+      `
+
+    `,
+      [t.EOS()],
+      false
+    ),
+    fix(
+      `dog
+      cat
+    `,
+      [t.Ident('dog'), t.Ident('cat'), t.EOS()],
+      false
+    ),
+    fix(
+      `dog
+
+
+      cat
+    `,
+      [t.Ident('dog'), t.Ident('cat'), t.EOS()],
+      false
+    ),
+    fix(
+      `dog,
+      cat
+    `,
+      [t.Ident('dog'), t.Comma(), t.Ident('cat'), t.EOS()],
+      false
+    ),
+    fix(
+      `dog,
+      cat,`,
+      [t.Ident('dog'), t.Comma(), t.Ident('cat'), t.Comma(), t.EOS()],
+      false
+    ),
+    fix(
+      `dog.
+      cat,`,
+      [t.Ident('dog'), t.Dot(), t.Ident('cat'), t.Comma(), t.EOS()],
+      false
+    ),
+    fix(
+      `"cat
+      dog"`,
+      [
+        t.String(`"cat
+      dog"`),
+        t.EOS()
+      ],
+      false
+    )
+  ])
+})
