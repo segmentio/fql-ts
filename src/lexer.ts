@@ -65,6 +65,11 @@ export default class Lexer {
         continue
       }
 
+      if (char === '.') {
+        tokens.push(t.Dot())
+        continue
+      }
+
       if (char === '[') {
         tokens.push(t.BrackLeft())
         continue

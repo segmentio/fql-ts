@@ -1,5 +1,5 @@
 import Lexer, { LexerError } from './lexer'
-import { Token, TokenType, t } from './token'
+import { Token, t } from './token'
 
 interface Fixture {
   code: string
@@ -156,10 +156,19 @@ test('Lexer passes comma fixtures', () => {
 
 test('Lexer passes misc fixtures', () => {
   testFixtures([
-    fix('', [{ type: TokenType.EOS, value: 'eos' }], false),
-    fix('   ', [{ type: TokenType.EOS, value: 'eos' }], false),
+    fix('', [t.EOS()], false),
+    fix('   ', [t.EOS()], false),
 
     // null
     fix('null', [t.Null(), t.EOS()], false)
+  ])
+})
+
+test('Lexer passes misc fixtures', () => {
+  testFixtures([
+    fix('.', [t.Dot(), t.EOS()], false),
+    fix('. ', [t.Dot(), t.EOS()], false),
+    fix(' .', [t.Dot(), t.EOS()], false),
+    fix('message.event', [t.Ident('message'), t.Dot(), t.Ident('event'), t.EOS()], false)
   ])
 })
