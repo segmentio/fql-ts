@@ -1,5 +1,5 @@
 import Lexer, { LexerError } from './lexer'
-import { Token, TokenType } from './token'
+import { Token, TokenType, t } from './token'
 
 interface Fixture {
   code: string
@@ -20,20 +20,18 @@ test('Lexer passes fixtures', () => {
     fix('', [{ type: TokenType.EOS, value: 'eos' }], false),
 
     // Operators
-    fix('=', [{ type: TokenType.Operator, value: '=' }], false),
-    fix('!=', [{ type: TokenType.Operator, value: '!=' }], false),
-    fix('and', [{ type: TokenType.Operator, value: 'and' }], false),
+    fix('=', [t.Operator('='), t.EOS()], false),
+    fix('!=', [t.Operator('!='), t.EOS()], false),
+    fix('and', [t.Operator('and'), t.EOS()], false),
 
     // idents
-    fix('anna', [{ type: TokenType.Ident, value: 'anna' }], false),
-    fix('anna(', [{ type: TokenType.Ident, value: 'anna' }], false),
-    fix('anna.', [{ type: TokenType.Ident, value: 'anna' }], false),
-    fix('anna!', [{ type: TokenType.Ident, value: 'anna' }], false),
-    fix('anna=', [{ type: TokenType.Ident, value: 'anna' }], false),
-    fix('anna ', [{ type: TokenType.Ident, value: 'anna' }], false),
+    fix('anna', [t.Ident('anna'), t.EOS()], false),
+    fix('anna ', [t.Ident('anna'), t.EOS()], false),
+
+    fix('anna abba', [t.Ident('anna'), t.Ident('abba'), t.EOS()], false),
 
     // errors
-    fix('!', [{ type: TokenType.Operator, value: '!=' }], true)
+    fix('!', [], true)
   ]
 
   for (const { code, throws, tokens } of fixtures) {

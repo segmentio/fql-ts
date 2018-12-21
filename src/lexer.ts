@@ -1,8 +1,8 @@
 import Reader from './reader'
-import { Token, TokenType } from './token'
+import { Token, t } from './token'
 import NextState from './next-state'
 import { EOS_FLAG } from './constants'
-import { isNewLine, isAlpha, isTerminator, isIdent } from './strings'
+import { isNewLine, isAlpha, isTerminator, isIdent, isWhitespace } from './strings'
 
 const MAXIMUM_INDENT_LENGTH = 2000 // bug catcher
 
@@ -37,14 +37,20 @@ export default class Lexer {
   public lex(): Token[] {
     const tokens: Token[] = []
 
-    const { char, isEOS } = this.next()
-    if (isEOS) {
-      tokens.push({ type: TokenType.EOS, value: 'eos' })
-      return tokens
-    }
+    while (true) {
+      const { char, isEOS } = this.next()
+      if (isEOS) {
+        tokens.push(t.EOS())
+        return tokens
+      }
 
-    if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
-      tokens.push(this.lexOperator(char))
+      if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
+        tokens.push(this.lexOperator(char))
+      }
+
+      if (isWhitespace(char)) {
+        continue
+      }
     }
 
     return tokens
@@ -52,21 +58,20 @@ export default class Lexer {
 
   private lexOperator(previous: string): Token {
     if (previous === '=') {
-      return { type: TokenType.Operator, value: '=' }
+      return t.Operator('=')
     }
 
     if (previous === '!') {
-      const c = this.peek()
-      if (c !== '=') {
-        throw new LexerError(`expected '=' after '!', got '${c}'`, this.cursor)
+      if (!this.accept('=')) {
+        throw new LexerError(`expected '=' after '!', got '${this.peek()}'`, this.cursor)
       }
 
-      return { type: TokenType.Operator, value: '!=' }
+      return t.Operator('!=')
     }
 
     if (previous === 'a') {
       if (this.accept('nd')) {
-        return { type: TokenType.Operator, value: 'and' }
+        return t.Operator('and')
       }
 
       return this.lexIdent(previous)
@@ -102,10 +107,10 @@ export default class Lexer {
     }
 
     if (str === 'null') {
-      return { type: TokenType.Null, value: 'null' }
+      return t.Null()
     }
 
-    return { type: TokenType.Ident, value: previous + str }
+    return t.Ident(previous + str)
   }
 
   /**
