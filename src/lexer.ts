@@ -2,11 +2,22 @@ import Reader from './reader'
 import Token from './token'
 import NextState from './next-state'
 import { EOS_FLAG } from './constants'
-import { isNewLine } from './strings'
+import { isNewLine, isAlpha } from './strings'
 
 interface Cursor {
   line: number
   column: number
+}
+
+export class LexerError extends Error {
+  public cursor: Cursor
+
+  constructor(public message: string, cursor: Cursor) {
+    super(message)
+    this.name = 'LexerError'
+    this.stack = (new Error() as any).stack
+    this.cursor = cursor
+  }
 }
 
 export default class Lexer {
@@ -24,13 +35,35 @@ export default class Lexer {
   public lex(): Token[] {
     const tokens = []
 
-    const char = this.peek()
-    if (char === EOS_FLAG) {
+    const { char, isEOS } = this.next()
+    if (isEOS) {
       tokens.push(Token.EOS)
+      return tokens
+    }
+
+    if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
+      tokens.push(this.lexOperator(char))
     }
 
     return tokens
   }
+
+  private lexOperator(char: string): Token {
+    if (char === '=') {
+      return Token.Operator
+    }
+
+    if (char === '!') {
+      const c = this.peek()
+      if (c !== '=') {
+        throw new LexerError(`expected '=' after '!', got '${c}'`, this.cursor)
+      }
+    }
+  }
+
+  /**
+   * Helpers
+   */
 
   private next(): NextState {
     const { char, isEOS } = this.reader.forward()
