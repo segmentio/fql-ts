@@ -79,6 +79,7 @@ test('Lexer passes fixtures', () => {
 
     // errors
     fix('5.', [], true),
+    fix('5. ', [], true),
     fix('5.0.', [], true),
     fix('5.0.0.0', [], true),
     fix('!', [], true)
