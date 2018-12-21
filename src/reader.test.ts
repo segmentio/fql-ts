@@ -23,6 +23,16 @@ test('A reader can read a character and move its position', () => {
   expect(isEOS).toBeFalsy()
 })
 
+test('readers dont get messed up by quotes', () => {
+  const reader = new Reader('a"')
+  const { char } = reader.forward()
+  expect(char).toBe('a')
+
+  const { char: quote, isEOS } = reader.forward()
+  expect(quote).toBe('"')
+  expect(isEOS).toBe(false)
+})
+
 test('An empty reader will not advance the position', () => {
   const reader = new Reader('')
   const { char, isEOS } = reader.forward()

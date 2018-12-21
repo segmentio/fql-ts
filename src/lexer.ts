@@ -4,8 +4,9 @@ import NextState from './next-state'
 import { EOS_FLAG } from './constants'
 import { isNewLine, isAlpha, isTerminator, isIdent, isWhitespace, isNumber } from './strings'
 
-const MAXIMUM_INDENT_LENGTH = 50000 // bug catcher
-const MAXIMUM_NUMBER_LENGTH = 50000
+const MAXIMUM_INDENT_LENGTH = 100000 // bug catcher
+const MAXIMUM_NUMBER_LENGTH = 100000
+const MAXIMUM_STRING_LENGTH = 100000
 
 interface Cursor {
   line: number
@@ -56,9 +57,30 @@ export default class Lexer {
       if (isNumber(char) || char === '-' || char === '+') {
         tokens.push(this.lexNumber(char))
       }
+
+      if (char === '"') {
+        tokens.push(this.lexString())
+      }
+    }
+  }
+
+  private lexString(): Token {
+    let str = ''
+    while (this.peek() !== '"') {
+      const { char, isEOS } = this.next()
+      str += char
+
+      if (isEOS) {
+        throw new LexerError('unterminated string', this.cursor)
+      }
+
+      if (str.length >= MAXIMUM_STRING_LENGTH) {
+        throw new LexerError('unreasonable string length', this.cursor)
+      }
     }
 
-    return tokens
+    this.accept('"') // Eat the last quote
+    return t.String(`"${str}"`)
   }
 
   private lexNumber(previous: string): Token {

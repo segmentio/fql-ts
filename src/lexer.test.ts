@@ -77,7 +77,18 @@ test('Lexer passes fixtures', () => {
     fix('+5.4', [t.Number('+5.4'), t.EOS()], false),
     fix('-3.2', [t.Number('-3.2'), t.EOS()], false),
 
+    // Strings
+    fix('"d"', [t.String('"d"'), t.EOS()], false),
+    fix('"and"', [t.String('"and"'), t.EOS()], false),
+    fix('"or and"', [t.String('"or and"'), t.EOS()], false),
+    fix('"a" "b"', [t.String('"a"'), t.String('"b"'), t.EOS()], false),
+
     // errors
+    fix('"', [], true),
+    fix('"  ', [], true),
+    fix('" " " ', [], true),
+    fix('"abd', [], true),
+    fix('abd "', [], true),
     fix('5.', [], true),
     fix('5. ', [], true),
     fix('5.0.', [], true),
