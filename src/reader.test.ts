@@ -33,6 +33,16 @@ test('readers dont get messed up by quotes', () => {
   expect(isEOS).toBe(false)
 })
 
+test('readers dont get messed up by spaces', () => {
+  const reader = new Reader('a ') // one space afterwards
+  const { char } = reader.forward()
+  expect(char).toBe('a')
+
+  const { char: space, isEOS } = reader.forward()
+  expect(space).toBe(' ')
+  expect(isEOS).toBe(false)
+})
+
 test('An empty reader will not advance the position', () => {
   const reader = new Reader('')
   const { char, isEOS } = reader.forward()

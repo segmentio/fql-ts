@@ -61,6 +61,26 @@ export default class Lexer {
       if (char === '"') {
         tokens.push(this.lexString())
       }
+
+      if (char === '[') {
+        tokens.push(t.BrackLeft())
+      }
+
+      if (char === ']') {
+        tokens.push(t.BrackRight())
+      }
+
+      if (char === ',') {
+        tokens.push(t.Comma())
+      }
+
+      if (char === '(') {
+        tokens.push(t.ParenLeft())
+      }
+
+      if (char === ')') {
+        tokens.push(t.ParenRight())
+      }
     }
   }
 
@@ -211,11 +231,15 @@ export default class Lexer {
 
     for (const _ of str) {
       const { char, isEOS } = this.next()
-      if (isEOS || isTerminator(char)) {
+      chars += char
+
+      if (isEOS) {
         return false
       }
 
-      chars += char
+      if (isTerminator(char)) {
+        break
+      }
     }
 
     if (str === chars && isTerminator(this.peek())) {

@@ -34,6 +34,7 @@ test('Lexer passes fixtures', () => {
     fix('null', [t.Null(), t.EOS()], false),
 
     // a-starting idents (not and)
+    // fix('a b', [t.Ident('a'), t.Ident('b'), t.EOS()], false),
     fix('andeverything', [t.Ident('andeverything'), t.EOS()], false),
     fix('anna', [t.Ident('anna'), t.EOS()], false),
     fix('anna ', [t.Ident('anna'), t.EOS()], false),
@@ -82,6 +83,24 @@ test('Lexer passes fixtures', () => {
     fix('"and"', [t.String('"and"'), t.EOS()], false),
     fix('"or and"', [t.String('"or and"'), t.EOS()], false),
     fix('"a" "b"', [t.String('"a"'), t.String('"b"'), t.EOS()], false),
+
+    // Brackets
+    fix('[', [t.BrackLeft(), t.EOS()], false),
+    fix('["dogs"', [t.BrackLeft(), t.String('"dogs"'), t.EOS()], false),
+    fix('["dogs"]', [t.BrackLeft(), t.String('"dogs"'), t.BrackRight(), t.EOS()], false),
+    fix(']', [t.BrackRight(), t.EOS()], false),
+    fix(']"dogs"', [t.BrackRight(), t.String('"dogs"'), t.EOS()], false),
+
+    // Parens
+    fix('(', [t.ParenLeft(), t.EOS()], false),
+    fix('("dogs"', [t.ParenLeft(), t.String('"dogs"'), t.EOS()], false),
+    fix('("dogs")', [t.ParenLeft(), t.String('"dogs"'), t.ParenRight(), t.EOS()], false),
+    fix(')', [t.ParenRight(), t.EOS()], false),
+    fix(')"dogs"', [t.ParenRight(), t.String('"dogs"'), t.EOS()], false),
+
+    // Commas
+    fix(',', [t.Comma(), t.EOS()], false),
+    // fix('a,b', [t.Ident('a'), t.Comma(), t.Ident('b'), t.EOS()], false),
 
     // errors
     fix('"', [], true),

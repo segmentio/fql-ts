@@ -9,4 +9,5 @@ test('no for weird js number cases', () => {
   expect(isNumber(' ')).toBe(false)
   expect(isNumber('true')).toBe(false)
   expect(isNumber('Infinity')).toBe(false)
+  expect(isNumber(',')).toBe(false)
 })
