@@ -1,9 +1,9 @@
 {
   "name": "@segment/fql",
   "version": "1.0.2",
-  "main": "dist/src/index.js",
-  "browser": "dist/src/index.js",
-  "bin": "dist/src/index.js",
+  "main": "dist/index.js",
+  "browser": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "test": "jest",
     "build": "rm -rf dist && tsc",
