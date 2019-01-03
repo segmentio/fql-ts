@@ -15,7 +15,9 @@ interface UnLexResponse {
 
 export default function unlex(tokens: Token[]): UnLexResponse {
   let str = ''
-  for (const token of tokens) {
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]
+
     // Break if we hit an EOS
     if (token.type === TokenType.EOS) {
       break
@@ -28,7 +30,19 @@ export default function unlex(tokens: Token[]): UnLexResponse {
       }
     }
 
-    str += token.value
+    // Don't add unecessary spaces to dots
+    if (token.type === TokenType.Dot) {
+      str += token.value
+      continue
+    }
+
+    // Don't add unnecessary spaces after dots
+    if (i !== 0 && tokens[i - 1].type === TokenType.Dot) {
+      str += token.value
+      continue
+    }
+
+    str += ' ' + token.value
   }
 
   return { code: str.trim() }
