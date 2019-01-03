@@ -28,7 +28,7 @@ export default function unlex(tokens: Token[]): UnLexResponse {
       }
     }
 
-    str += ' ' + token.value
+    str += token.value
   }
 
   return { code: str.trim() }
