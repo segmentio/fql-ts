@@ -14,6 +14,7 @@ also be used to give our FQL in-browser REPLs and integrate into existing toolin
 ## Usage
 
 Install it with:
+
 ```
 yarn add @segment/fql
 ```
@@ -137,6 +138,72 @@ If we have errors during the unlexing, we'll return an `error` object, just like
 
 ```js
 const { error } = unlex(dangerousErrorTokens)
+```
+
+### AST
+
+We can create a typed AST from an array of tokens.
+
+```js
+import { ast, lex } from '@segment/fql'
+
+const { tokens } = lex(`message = "foo"`)
+const { node } = ast(tokens)
+```
+
+The AST returns the _root_ node of the tree which will always have the `node.type` of `ROOT`.
+
+Each node is in a format like this:
+
+```ts
+const node = {
+  leaves: []
+  nodes: []
+  type: "Expr"
+}
+```
+
+Leaves are arrays of tokens, nodes are other nodes. The type is an enum defined with `AbstractSyntaxType`. If you're using typescript, they're defined as:
+
+```ts
+export enum AbstractSyntaxType {
+  ROOT = 'root',
+  EXPR = 'expr',
+  PATH = 'path',
+  FUNC = 'func',
+  ERR = 'err',
+  OPERATOR = 'OPERATOR'
+}
+
+export interface Node {
+  leaves: Token[]
+  nodes: Node[]
+  type: AbstractSyntaxType
+}
+```
+
+If something went wrong in the parsing, the AST will return an error and the last node will be of type `ERR`:
+
+```js
+import { ast, lex } from '@segment/fql'
+
+const { tokens } = lex(`message = `)
+const { node, error } = ast(tokens)
+
+console.error(error) // "ParserError: ..."
+```
+
+#### There and Back Again
+
+You can go from an AST to tokens pretty easily with `astToTokens`:
+
+```js
+import { astToTokens, lex, ast } from '@segment/fql'
+
+const { tokens } = lex(`message = "foo"`)
+const { node } = ast(tokens)
+
+astToTokens(node) // same thing as tokens
 ```
 
 ## Contributing
