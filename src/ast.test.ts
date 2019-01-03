@@ -1,4 +1,4 @@
-import ast, { AbstractSyntaxType, astToTokens } from './ast'
+import ast, { AbstractSyntaxType, astToTokens, astToString } from './ast'
 import lex from './lexer'
 import { TokenType } from './token'
 
@@ -120,4 +120,11 @@ test('astToTokens can correctly convert to tokens', () => {
   const { node } = ast(tokens)
 
   expect(astToTokens(node)).toEqual(tokens)
+})
+
+test('astToString can correctly convert tokens', () => {
+  const { tokens } = lex('message.event')
+  const { node } = ast(tokens)
+
+  expect(astToString(node)).toBe('message.event')
 })

@@ -55,6 +55,12 @@ export function astToTokens(node: Node): Token[] {
   return tokens
 }
 
+export function astToString(node: Node): string {
+  return astToTokens(node)
+    .map(({ value, type }) => (type === TokenType.EOS ? '' : value))
+    .join('')
+}
+
 function traverseAstForTokens(node: Node): Token[] {
   let tokens = []
 
