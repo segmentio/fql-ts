@@ -36,13 +36,37 @@ interface AstResponse {
 
 export default function ast(tokens: Token[]): AstResponse {
   try {
-    return { node: new Parser(tokens).parse() }
+    // we .slice() here to avoid destroying the array
+    return { node: new Parser(tokens.slice()).parse() }
   } catch (error) {
     return {
       node: newNode(AbstractSyntaxType.ERR),
       error
     }
   }
+}
+
+export function astToTokens(node: Node): Token[] {
+  const tokens = traverseAstForTokens(node)
+
+  // AST doesn't record the EOS, so we add it back
+  tokens.push(t.EOS())
+
+  return tokens
+}
+
+function traverseAstForTokens(node: Node): Token[] {
+  let tokens = []
+
+  for (const child of node.nodes) {
+    tokens = tokens.concat(traverseAstForTokens(child))
+  }
+
+  if (node.leaves.length > 0) {
+    tokens = tokens.concat(node.leaves)
+  }
+
+  return tokens
 }
 
 export class Parser {

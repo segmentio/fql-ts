@@ -1,4 +1,4 @@
-import ast, { AbstractSyntaxType } from './ast'
+import ast, { AbstractSyntaxType, astToTokens } from './ast'
 import lex from './lexer'
 import { TokenType } from './token'
 
@@ -113,4 +113,11 @@ test('Literals are recorded correctly', () => {
   expect(node.nodes[2].type).toBe(AbstractSyntaxType.EXPR)
   expect(node.nodes[2].leaves[0].type).toBe(TokenType.String)
   expect(node.nodes[2].leaves[0].value).toBe(`"foo"`)
+})
+
+test('astToTokens can correctly convert to tokens', () => {
+  const { tokens } = lex(`message = "foo"`)
+  const { node } = ast(tokens)
+
+  expect(astToTokens(node)).toEqual(tokens)
 })
