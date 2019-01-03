@@ -1,4 +1,4 @@
-import { lex, t, types } from './index'
+import { lex, t, types, ast, astToTokens } from './index'
 import unlex from './unlexer'
 
 test('we can use the imported lexer', () => {
@@ -29,4 +29,11 @@ test('we can use the imported unlexer', () => {
 
 test('we can use the imported types', () => {
   expect(t.Operator('=').type).toBe(types.Operator)
+})
+
+test('we can use the imported ast and astToTokens', () => {
+  const { tokens } = lex(`message = "foo"`)
+  const { node } = ast(tokens)
+
+  expect(astToTokens(node)).toEqual(tokens)
 })
