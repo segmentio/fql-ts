@@ -77,3 +77,40 @@ test('multi paths are recognized', () => {
   expect(path.leaves[4].type).toBe(TokenType.Ident)
   expect(path.leaves[4].value).toBe('property')
 })
+
+test('Multiple statements work', () => {
+  const { tokens } = lex(`message = "foo"`)
+  const { node, error } = ast(tokens)
+  expect(error).toBeUndefined()
+
+  expect(node.nodes.length).toBe(3)
+  expect(node.nodes[0].type).toBe(AbstractSyntaxType.EXPR)
+  expect(node.nodes[1].type).toBe(AbstractSyntaxType.OPERATOR)
+  expect(node.nodes[2].type).toBe(AbstractSyntaxType.EXPR)
+})
+
+test('Operator is recorded correctly', () => {
+  const { tokens } = lex(`message = "foo"`)
+  const { node, error } = ast(tokens)
+  expect(error).toBeUndefined()
+
+  expect(node.nodes.length).toBe(3)
+
+  // Operator is recorded correctly, wrapped in a node
+  expect(node.nodes[1].type).toBe(AbstractSyntaxType.OPERATOR)
+  expect(node.nodes[1].leaves[0].type).toBe(TokenType.Operator)
+  expect(node.nodes[1].leaves[0].value).toBe('=')
+})
+
+test('Literals are recorded correctly', () => {
+  const { tokens } = lex(`message = "foo"`)
+  const { node, error } = ast(tokens)
+  expect(error).toBeUndefined()
+
+  expect(node.nodes.length).toBe(3)
+
+  // Operator is recorded correctly, wrapped in a node
+  expect(node.nodes[2].type).toBe(AbstractSyntaxType.EXPR)
+  expect(node.nodes[2].leaves[0].type).toBe(TokenType.String)
+  expect(node.nodes[2].leaves[0].value).toBe(`"foo"`)
+})

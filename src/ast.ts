@@ -5,7 +5,8 @@ export enum AbstractSyntaxType {
   EXPR = 'expr',
   PATH = 'path',
   FUNC = 'func',
-  ERR = 'err'
+  ERR = 'err',
+  OPERATOR = 'OPERATOR'
 }
 
 // Splits children into "leaves" and "nodes" so we get
@@ -53,8 +54,32 @@ export class Parser {
 
   public parse(): Node {
     const node: Node = newNode(AbstractSyntaxType.ROOT)
-
     node.nodes.push(this.expr())
+
+    if (this.peek().type === TokenType.EOS) {
+      return node
+    }
+
+    if (this.peek().type === TokenType.Operator) {
+      node.nodes.push(this.operator())
+      node.nodes.push(this.expr())
+      return node
+    }
+
+    // Future versions could get better error handling here
+    // by passing in the AST up to this point, converting it
+    // back to tokens, unlexing those tokens, and then using
+    // where it stopped to signal to the user where the bug is
+    throw new ParserError(
+      `Unexpected token of type '${this.peek().type}' and value '${this.peek().value}'.`
+    )
+  }
+
+  // We wrap the operator in a node instead
+  // of a leaf so we get clear ordering
+  private operator(): Node {
+    const node: Node = newNode(AbstractSyntaxType.OPERATOR)
+    node.leaves.push(this.next())
     return node
   }
 
