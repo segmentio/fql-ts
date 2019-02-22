@@ -138,7 +138,7 @@ export class Parser {
 
     // Paths or functions
     if (upcoming.type === TokenType.Ident) {
-      node.nodes.push(this.pathOrFunc(upcoming))
+      node.nodes.push(this.pathOrFunc(this.next()))
       return node
     }
 
@@ -154,9 +154,7 @@ export class Parser {
 
   // things like `message.event` or `contains(...)`
   private pathOrFunc(previous: Token): Node {
-    const id = this.next()
-
-    if (id.type === TokenType.ParenLeft) {
+    if (this.peek().type === TokenType.ParenLeft) {
       return this.func(previous)
     }
 
@@ -174,8 +172,28 @@ export class Parser {
     return node
   }
 
+  // ident(left, right)
+  // nodes = [left, right]; leaves = [ident]
   private func(previous: Token): Node {
-    throw new ParserError(`${previous} func Not yet supported`)
+    const node = newNode(AbstractSyntaxType.FUNC)
+    node.leaves.push(previous) // ident
+    node.leaves.push(this.next()) // lparen
+
+    node.nodes.push(this.expr()) // First arg
+
+    // Rest args
+    while (this.peek().type !== TokenType.ParenRight) {
+      const comma = this.next() // comma
+      if (comma.type !== TokenType.Comma) {
+        throw new ParserError(`Expected comma in function but got expression: ${comma}`)
+      }
+
+      node.nodes.push(this.expr()) // Next expr
+    }
+
+    node.leaves.push(this.next()) // rparen
+
+    return node
   }
 
   private list(): Node {

@@ -1,6 +1,6 @@
 import ast, { AbstractSyntaxType, astToTokens, astToString } from './ast'
 import lex from './lexer'
-import { TokenType } from './token'
+import { TokenType, t } from './token'
 
 test('root node has root type', () => {
   const { tokens } = lex(`"foobang"`)
@@ -127,4 +127,53 @@ test('astToString can correctly convert tokens', () => {
   const { node } = ast(tokens)
 
   expect(astToString(node)).toBe('message.event')
+})
+
+test('astToString can correctly convert functions back and forth', () => {
+  const { tokens } = lex('contains(message.event, "Order Completed")')
+  const { node } = ast(tokens)
+
+  expect(astToString(node)).toBe('contains(message.event, "Order Completed")')
+})
+
+test('multi arg functions are supported', () => {
+  const { tokens } = lex('contains(message.event, "Order Completed")')
+  const { node, error } = ast(tokens)
+  expect(error).toBeUndefined()
+
+  expect(node.nodes.length).toBe(1)
+  expect(node.nodes[0].type).toBe(AbstractSyntaxType.EXPR)
+
+  const func = node.nodes[0].nodes[0]
+  expect(func.type).toBe(AbstractSyntaxType.FUNC)
+  expect(func.leaves[0]).toEqual(t.Ident('contains'))
+
+  // First arg:
+  // { type: "EXPR", nodes: [{
+  //  type: "PATH", leaves: ['message', '.', 'event']
+  // }] }
+  expect(func.nodes[0].type).toBe(AbstractSyntaxType.EXPR)
+  expect(func.nodes[0].nodes[0].type).toBe(AbstractSyntaxType.PATH)
+  expect(func.nodes[0].nodes[0].leaves).toEqual([t.Ident('message'), t.Dot(), t.Ident('event')])
+
+  // Second arg is just a string
+  expect(func.nodes[1].type).toBe(AbstractSyntaxType.EXPR)
+  expect(func.nodes[1].leaves).toEqual([t.String('"Order Completed"')])
+})
+
+test('single arg functions are supported', () => {
+  const { tokens } = lex('matches("hi")')
+  const { node, error } = ast(tokens)
+  expect(error).toBeUndefined()
+
+  expect(node.nodes.length).toBe(1)
+  expect(node.nodes[0].type).toBe(AbstractSyntaxType.EXPR)
+
+  const func = node.nodes[0].nodes[0]
+  expect(func.type).toBe(AbstractSyntaxType.FUNC)
+  expect(func.leaves[0]).toEqual(t.Ident('matches'))
+
+  // Second arg is just a string
+  expect(func.nodes[0].type).toBe(AbstractSyntaxType.EXPR)
+  expect(func.nodes[0].leaves).toEqual([t.String('"hi"')])
 })
