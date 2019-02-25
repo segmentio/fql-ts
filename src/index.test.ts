@@ -1,5 +1,11 @@
 import { lex, t, types, ast, astToTokens } from './index'
 import unlex from './unlexer'
+import { getASTNode, getToken } from './index'
+
+test('access items are exported', () => {
+  expect(getASTNode).toBeTruthy()
+  expect(getToken).toBeTruthy()
+})
 
 test('we can use the imported lexer', () => {
   expect(lex(`message.event = "Order Completed" and amount > 100`).tokens).toEqual([

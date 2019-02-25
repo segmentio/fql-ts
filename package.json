@@ -49,5 +49,9 @@
       "pre-commit": "lint-staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS; printf \"\n\n\""
     }
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.121",
+    "lodash": "^4.17.11"
   }
 }
