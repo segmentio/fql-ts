@@ -9,8 +9,6 @@ export enum AbstractSyntaxType {
   OPERATOR = 'OPERATOR'
 }
 
-export type ASTree = ASTNode | Token
-
 // Splits children into "leaves" and "nodes" so we get
 // type safety and don't have to deal with union types
 export interface ASTNode {
@@ -18,11 +16,11 @@ export interface ASTNode {
   type: AbstractSyntaxType
 }
 
-export function isASTree(arg: any): arg is ASTree {
+export function isASTree(arg: any): arg is ASTNode {
   return isASTNode(arg) || isToken(arg)
 }
 
-export function isASTNode(arg: ASTree): arg is ASTNode {
+export function isASTNode(arg: any): arg is ASTNode {
   return (arg as ASTNode).children !== undefined
 }
 
@@ -70,11 +68,7 @@ export function astToString(node: ASTNode): string {
     .join('')
 }
 
-function traverseAstForTokens(tree: ASTree): Token[] {
-  if (isToken(tree)) {
-    return [tree]
-  }
-
+function traverseAstForTokens(tree: ASTNode): Token[] {
   let tokens = []
 
   for (const child of tree.children) {

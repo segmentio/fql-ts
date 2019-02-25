@@ -153,13 +153,12 @@ const { node } = ast(tokens)
 
 The AST returns the _root_ node of the tree which will always have the `node.type` of `ROOT`.
 
-Each node is in a format like this:
+The Tree structure type looks like this:
 
 ```ts
-const node = {
-  leaves: []
-  nodes: []
-  type: "Expr"
+{
+  children: [],
+  type: "expr"
 }
 ```
 
@@ -175,10 +174,14 @@ export enum AbstractSyntaxType {
   OPERATOR = 'OPERATOR'
 }
 
-export interface Node {
-  leaves: Token[]
-  nodes: Node[]
+interface ASTNode {
+  children: Array<Token | ASTNode>
   type: AbstractSyntaxType
+}
+
+interface Token {
+  type: TokenType
+  value: string
 }
 ```
 
