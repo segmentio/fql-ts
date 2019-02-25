@@ -1,11 +1,12 @@
 export { default as lex } from './lexer'
 export { default as unlex } from './unlexer'
-export { TokenType as types, t, isToken } from './token'
+export { TokenType as types, t, isToken, Token } from './token'
 export {
   default as ast,
   astToTokens,
   astToString,
   AbstractSyntaxType as nodeTypes,
-  isASTNode
+  isASTNode,
+  ASTNode
 } from './ast'
 export { getASTNode, getToken } from './access'
