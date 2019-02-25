@@ -3,6 +3,11 @@ export interface Token {
   value: string
 }
 
+// Loosely checks if something is a token type at runtime
+export function isToken(arg: any): arg is Token {
+  return (arg as Token).type !== undefined && typeof (arg as Token).value === 'string'
+}
+
 // All available tokens forms
 export enum TokenType {
   Err = 'err',

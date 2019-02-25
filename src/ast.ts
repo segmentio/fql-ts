@@ -1,4 +1,4 @@
-import { Token, t, TokenType } from './token'
+import { Token, t, TokenType, isToken } from './token'
 
 export enum AbstractSyntaxType {
   ROOT = 'root',
@@ -9,16 +9,25 @@ export enum AbstractSyntaxType {
   OPERATOR = 'OPERATOR'
 }
 
+export type ASTree = ASTNode | Token
+
 // Splits children into "leaves" and "nodes" so we get
 // type safety and don't have to deal with union types
-export interface Node {
-  leaves: Token[]
-  nodes: Node[]
+export interface ASTNode {
+  children: Array<Token | ASTNode>
   type: AbstractSyntaxType
 }
 
-function newNode(type: AbstractSyntaxType): Node {
-  return { nodes: [], leaves: [], type }
+export function isASTree(arg: any): arg is ASTree {
+  return isASTNode(arg) || isToken(arg)
+}
+
+export function isASTNode(arg: ASTree): arg is ASTNode {
+  return (arg as ASTNode).children !== undefined
+}
+
+function newNode(type: AbstractSyntaxType): ASTNode {
+  return { children: [], type }
 }
 
 export class ParserError extends Error {
@@ -30,7 +39,7 @@ export class ParserError extends Error {
 }
 
 interface AstResponse {
-  node: Node
+  node: ASTNode
   error?: Error
 }
 
@@ -46,7 +55,7 @@ export default function ast(tokens: Token[]): AstResponse {
   }
 }
 
-export function astToTokens(node: Node): Token[] {
+export function astToTokens(node: ASTNode): Token[] {
   const tokens = traverseAstForTokens(node)
 
   // AST doesn't record the EOS, so we add it back
@@ -55,21 +64,25 @@ export function astToTokens(node: Node): Token[] {
   return tokens
 }
 
-export function astToString(node: Node): string {
+export function astToString(node: ASTNode): string {
   return astToTokens(node)
     .map(({ value, type }) => (type === TokenType.EOS ? '' : value))
     .join('')
 }
 
-function traverseAstForTokens(node: Node): Token[] {
-  let tokens = []
-
-  for (const child of node.nodes) {
-    tokens = tokens.concat(traverseAstForTokens(child))
+function traverseAstForTokens(tree: ASTree): Token[] {
+  if (isToken(tree)) {
+    return [tree]
   }
 
-  if (node.leaves.length > 0) {
-    tokens = tokens.concat(node.leaves)
+  let tokens = []
+
+  for (const child of tree.children) {
+    if (isASTNode(child)) {
+      tokens = tokens.concat(traverseAstForTokens(child))
+    } else if (isToken(child)) {
+      tokens.push(child)
+    }
   }
 
   return tokens
@@ -82,17 +95,17 @@ export class Parser {
     this.queue = tokens
   }
 
-  public parse(): Node {
-    const node: Node = newNode(AbstractSyntaxType.ROOT)
-    node.nodes.push(this.expr())
+  public parse(): ASTNode {
+    const node: ASTNode = newNode(AbstractSyntaxType.ROOT)
+    node.children.push(this.expr())
 
     if (this.peek().type === TokenType.EOS) {
       return node
     }
 
     if (this.peek().type === TokenType.Operator) {
-      node.nodes.push(this.operator())
-      node.nodes.push(this.expr())
+      node.children.push(this.operator())
+      node.children.push(this.expr())
       return node
     }
 
@@ -107,44 +120,44 @@ export class Parser {
 
   // We wrap the operator in a node instead
   // of a leaf so we get clear ordering
-  private operator(): Node {
-    const node: Node = newNode(AbstractSyntaxType.OPERATOR)
-    node.leaves.push(this.next())
+  private operator(): ASTNode {
+    const node: ASTNode = newNode(AbstractSyntaxType.OPERATOR)
+    node.children.push(this.next())
     return node
   }
 
-  private expr(): Node {
-    const node: Node = newNode(AbstractSyntaxType.EXPR)
+  private expr(): ASTNode {
+    const node: ASTNode = newNode(AbstractSyntaxType.EXPR)
 
     const upcoming = this.peek()
 
     // Strings
     if (upcoming.type === TokenType.String) {
-      node.leaves.push(this.next())
+      node.children.push(this.next())
       return node
     }
 
     // Numbers
     if (upcoming.type === TokenType.Number) {
-      node.leaves.push(this.next())
+      node.children.push(this.next())
       return node
     }
 
     // Null
     if (upcoming.type === TokenType.Null) {
-      node.leaves.push(this.next())
+      node.children.push(this.next())
       return node
     }
 
     // Paths or functions
     if (upcoming.type === TokenType.Ident) {
-      node.nodes.push(this.pathOrFunc(upcoming))
+      node.children.push(this.pathOrFunc(upcoming))
       return node
     }
 
     // Lists
     if (upcoming.type === TokenType.BrackLeft) {
-      node.nodes.push(this.list())
+      node.children.push(this.list())
       return node
     }
 
@@ -153,7 +166,7 @@ export class Parser {
   }
 
   // things like `message.event` or `contains(...)`
-  private pathOrFunc(previous: Token): Node {
+  private pathOrFunc(previous: Token): ASTNode {
     const id = this.next()
 
     if (id.type === TokenType.ParenLeft) {
@@ -163,22 +176,22 @@ export class Parser {
     return this.path(previous)
   }
 
-  private path(previous: Token): Node {
+  private path(previous: Token): ASTNode {
     const node = newNode(AbstractSyntaxType.PATH)
-    node.leaves.push(previous)
+    node.children.push(previous)
 
     while (this.peek().type === TokenType.Ident || this.peek().type === TokenType.Dot) {
-      node.leaves.push(this.next())
+      node.children.push(this.next())
     }
 
     return node
   }
 
-  private func(previous: Token): Node {
+  private func(previous: Token): ASTNode {
     throw new ParserError(`${previous} func Not yet supported`)
   }
 
-  private list(): Node {
+  private list(): ASTNode {
     throw new ParserError(` list Not yet supported`)
   }
 
