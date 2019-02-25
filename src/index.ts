@@ -6,6 +6,6 @@ export {
   astToTokens,
   astToString,
   AbstractSyntaxType as nodeTypes,
-  isASTNode,
-  isASTree
+  isASTNode
 } from './ast'
+export { getASTNode, getToken } from './access'
