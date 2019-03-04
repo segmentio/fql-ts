@@ -90,6 +90,7 @@ enum TokenType {
   Ident = 'ident',
   Dot = 'dot',
   Operator = 'operator',
+  Conditional = 'conditional',
   String = 'string',
   Number = 'number',
   Null = 'null',
@@ -106,6 +107,7 @@ t.Err()
 t.Ident('someIdentifier')
 t.Dot()
 t.Operator('=')
+t.Conditional('or')
 t.String('"Something Something Something"') // note the extra "" quotes here
 t.Number('23') // Still needs to be a string
 t.Null()
@@ -171,7 +173,8 @@ export enum AbstractSyntaxType {
   PATH = 'path',
   FUNC = 'func',
   ERR = 'err',
-  OPERATOR = 'OPERATOR'
+  CONDITIONAL = 'conditional',
+  OPERATOR = 'operator'
 }
 
 interface ASTNode {
@@ -185,6 +188,8 @@ interface Token {
 }
 ```
 
+#### Errors
+
 If something went wrong in the parsing, the AST will return an error and the last node will be of type `ERR`:
 
 ```js
@@ -194,6 +199,53 @@ const { tokens } = lex(`message = `)
 const { node, error } = ast(tokens)
 
 console.error(error) // "ParserError: ..."
+```
+
+#### All Tokens are wrapped by a Node
+
+For consistency and parsing reasons, *there are no heterogenous children on nodes.* In other words, a node NEVER has BOTH a token and another node as a children.
+
+This is impossible in FQL-TS:
+```
+// BAD
+node
+ - token 
+ - node
+   - token
+```
+
+Instead, tokens are wrapped in their own node:
+```
+// GOOD
+node 
+ - node
+   - token
+ - node
+   - token
+```
+
+This is incredibly important to note in `conditional` (like "and" and "or") and `operator` nodes, as it's often easy to assume that FQL like `message.event = "foo"` might look like this:
+
+```
+// BAD
+node(expr)
+  - node(path)
+    - ...
+  - token('=')
+  - node(string)
+    - ...
+```
+
+Instead, we'd see something like this:
+```
+// GOOD
+node(expr)
+  - node(path)
+    - ...
+  - node(operator)
+    - token('=')
+  - node(string)
+    - ...
 ```
 
 #### There and Back Again
