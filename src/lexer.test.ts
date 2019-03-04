@@ -63,7 +63,7 @@ test('Lexer passes ident fixtures', () => {
     // o-starting idents (not or)
     fix('orange', [t.Ident('orange'), t.EOS()], false),
     fix('orange ', [t.Ident('orange'), t.EOS()], false),
-    fix('or orange ', [t.Operator('or'), t.Ident('orange'), t.EOS()], false),
+    fix('or orange ', [t.Conditional('or'), t.Ident('orange'), t.EOS()], false),
     fix('orange', [t.Ident('orange'), t.EOS()], false),
 
     // n-starting idents (not null)
@@ -84,12 +84,17 @@ test('Lexer passes operator fixtures', () => {
   testFixtures([
     fix('=', [t.Operator('='), t.EOS()], false),
     fix('!=', [t.Operator('!='), t.EOS()], false),
-    fix('and', [t.Operator('and'), t.EOS()], false),
-    fix('or', [t.Operator('or'), t.EOS()], false),
     fix('<=', [t.Operator('<='), t.EOS()], false),
     fix('>=', [t.Operator('>='), t.EOS()], false),
     fix('<', [t.Operator('<'), t.EOS()], false),
     fix('>', [t.Operator('>'), t.EOS()], false)
+  ])
+})
+
+test('Lexer passes conditional fixtures', () => {
+  testFixtures([
+    fix('and', [t.Conditional('and'), t.EOS()], false),
+    fix('or', [t.Conditional('or'), t.EOS()], false)
   ])
 })
 

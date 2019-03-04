@@ -6,7 +6,9 @@ export enum AbstractSyntaxType {
   PATH = 'path',
   FUNC = 'func',
   ERR = 'err',
-  OPERATOR = 'OPERATOR'
+  OPERATOR = 'operator',
+  CONDITIONAL = 'conditional',
+  STATEMENT = 'statement'
 }
 
 // Splits children into "leaves" and "nodes" so we get
@@ -62,9 +64,26 @@ export function astToTokens(node: ASTNode): Token[] {
   return tokens
 }
 
+function formatToken(token: Token): string {
+  switch (token.type) {
+    case TokenType.EOS:
+      return '' // don't show EOS tokens
+    case TokenType.Conditional:
+      // 'or' and 'and' needs spaces to avoid converting things to:
+      // `ortype = "hello"` instead of `or type = "hello"`
+      return ' ' + token.value + ' '
+    case TokenType.Operator:
+      // Operators are formatted with spaces for easier reading
+      // prefer `type = "hello"` to `type="hello"`
+      return ' ' + token.value + ' '
+    default:
+      return token.value
+  }
+}
+
 export function astToString(node: ASTNode): string {
   return astToTokens(node)
-    .map(({ value, type }) => (type === TokenType.EOS ? '' : value))
+    .map(formatToken)
     .join('')
 }
 
@@ -91,6 +110,28 @@ export class Parser {
 
   public parse(): ASTNode {
     const node: ASTNode = newNode(AbstractSyntaxType.ROOT)
+    node.children.push(this.statement())
+
+    while (this.peek().type === TokenType.Conditional || this.peek().type === TokenType.EOS) {
+      if (this.peek().type === TokenType.EOS) {
+        return node
+      }
+
+      node.children.push(this.conditional())
+      node.children.push(this.statement())
+    }
+
+    // Future versions could get better error handling here
+    // by passing in the AST up to this point, converting it
+    // back to tokens, unlexing those tokens, and then using
+    // where it stopped to signal to the user where the bug is
+    throw new ParserError(
+      `Unexpected token of type '${this.peek().type}' and value '${this.peek().value}'.`
+    )
+  }
+
+  private statement(): ASTNode {
+    const node: ASTNode = newNode(AbstractSyntaxType.STATEMENT)
     node.children.push(this.expr())
 
     if (this.peek().type === TokenType.EOS) {
@@ -103,13 +144,15 @@ export class Parser {
       return node
     }
 
-    // Future versions could get better error handling here
-    // by passing in the AST up to this point, converting it
-    // back to tokens, unlexing those tokens, and then using
-    // where it stopped to signal to the user where the bug is
-    throw new ParserError(
-      `Unexpected token of type '${this.peek().type}' and value '${this.peek().value}'.`
-    )
+    throw new ParserError(`Unexpected token in statement: '${this.peek()}'`)
+  }
+
+  // Wrapped in a leaf so we get a clear ordering
+  // when parsing
+  private conditional(): ASTNode {
+    const node: ASTNode = newNode(AbstractSyntaxType.CONDITIONAL)
+    node.children.push(this.next())
+    return node
   }
 
   // We wrap the operator in a node instead

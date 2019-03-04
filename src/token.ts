@@ -14,6 +14,7 @@ export enum TokenType {
   Ident = 'ident',
   Dot = 'dot',
   Operator = 'operator',
+  Conditional = 'conditional',
   String = 'string',
   Number = 'number',
   Null = 'null',
@@ -41,6 +42,10 @@ export const t = {
 
   Operator: (value): Token => {
     return { type: TokenType.Operator, value }
+  },
+
+  Conditional: (value): Token => {
+    return { type: TokenType.Conditional, value }
   },
 
   String: (value): Token => {

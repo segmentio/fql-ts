@@ -1,6 +1,6 @@
-import ast, { AbstractSyntaxType, astToTokens, astToString, isASTNode } from './ast'
+import ast, { AbstractSyntaxType, astToTokens, astToString, isASTNode, ASTNode } from './ast'
 import lex from './lexer'
-import { TokenType } from './token'
+import { TokenType, t } from './token'
 import { getASTNode, getToken } from './access'
 
 test('root node has root type', () => {
@@ -10,19 +10,28 @@ test('root node has root type', () => {
   expect(node.type).toBe(AbstractSyntaxType.ROOT)
 })
 
-test('second node has expr type', () => {
+test('in a single statement context the first child is a statement', () => {
   const { tokens } = lex(`"foobang"`)
   const { node } = ast(tokens)
 
-  expect(node.children.length).toBe(1)
-  expect(node.children[0].type).toBe(AbstractSyntaxType.EXPR)
+  expect(node.children[0].type).toBe(AbstractSyntaxType.STATEMENT)
+})
+
+test('second node has expr type', () => {
+  const { tokens } = lex(`"foobang"`)
+  const { node } = ast(tokens)
+  const statement = node.children[0] as ASTNode
+
+  expect(statement.children.length).toBe(1)
+  expect(statement.children[0].type).toBe(AbstractSyntaxType.EXPR)
 })
 
 test('string types are recognized', () => {
   const { tokens } = lex(`"foobang"`)
   const { node } = ast(tokens)
+  const statement = node.children[0] as ASTNode
 
-  const expr = node.children[0]
+  const expr = statement.children[0]
   if (isASTNode(expr)) {
     expect(expr.children.length).toBe(1)
     expect(expr.children[0].type).toBe(TokenType.String)
@@ -34,8 +43,9 @@ test('string types are recognized', () => {
 test('number types are recognized', () => {
   const { tokens } = lex(`1`)
   const { node } = ast(tokens)
+  const statement = node.children[0] as ASTNode
 
-  const expr = node.children[0]
+  const expr = statement.children[0]
   if (isASTNode(expr)) {
     expect(expr.children.length).toBe(1)
     expect(expr.children[0].type).toBe(TokenType.Number)
@@ -47,8 +57,9 @@ test('number types are recognized', () => {
 test('null types are recognized', () => {
   const { tokens } = lex(`null`)
   const { node } = ast(tokens)
+  const statement = node.children[0] as ASTNode
 
-  const expr = node.children[0]
+  const expr = statement.children[0]
   if (isASTNode(expr)) {
     expect(expr.children.length).toBe(1)
     expect(expr.children[0].type).toBe(TokenType.Null)
@@ -60,9 +71,10 @@ test('null types are recognized', () => {
 test('paths work', () => {
   const { tokens } = lex(`message`)
   const { node } = ast(tokens)
+  const statement = node.children[0] as ASTNode
 
   // expr -> path -> token[0]
-  const token = getToken(node, 'children[0].children[0].children[0]')
+  const token = getToken(statement, 'children[0].children[0].children[0]')
   expect(token.type).toBe(TokenType.Ident)
   expect(token.value).toBe('message')
 })
@@ -71,7 +83,9 @@ test('multi paths are recognized', () => {
   const { tokens } = lex(`message.event.property`)
   const { node } = ast(tokens)
 
-  const path = getASTNode(node, 'children[0].children[0]')
+  const statement = node.children[0] as ASTNode
+
+  const path = getASTNode(statement, 'children[0].children[0]')
   expect(path.type).toBe(AbstractSyntaxType.PATH)
 
   // message
@@ -103,23 +117,27 @@ test('Multiple statements work', () => {
   const { node, error } = ast(tokens)
   expect(error).toBeUndefined()
 
-  expect(node.children.length).toBe(3)
-  expect(node.children[0].type).toBe(AbstractSyntaxType.EXPR)
-  expect(node.children[1].type).toBe(AbstractSyntaxType.OPERATOR)
-  expect(node.children[2].type).toBe(AbstractSyntaxType.EXPR)
+  const statement = node.children[0] as ASTNode
+
+  expect(statement.children.length).toBe(3)
+  expect(statement.children[0].type).toBe(AbstractSyntaxType.EXPR)
+  expect(statement.children[1].type).toBe(AbstractSyntaxType.OPERATOR)
+  expect(statement.children[2].type).toBe(AbstractSyntaxType.EXPR)
 })
 
 test('Operator is recorded correctly', () => {
   const { tokens } = lex(`message = "foo"`)
   const { node, error } = ast(tokens)
   expect(error).toBeUndefined()
-  expect(node.children.length).toBe(3)
+
+  const statement = node.children[0] as ASTNode
+  expect(statement.children.length).toBe(3)
 
   // Operator is recorded correctly, wrapped in a node
-  const opNode = getASTNode(node, 'children[1]')
+  const opNode = getASTNode(statement, 'children[1]')
   expect(opNode.type).toBe(AbstractSyntaxType.OPERATOR)
 
-  const opToken = getToken(node, 'children[1].children[0]')
+  const opToken = getToken(statement, 'children[1].children[0]')
   expect(opToken.type).toBe(TokenType.Operator)
   expect(opToken.value).toBe('=')
 })
@@ -129,12 +147,13 @@ test('Literals are recorded correctly', () => {
   const { node, error } = ast(tokens)
   expect(error).toBeUndefined()
 
-  expect(node.children.length).toBe(3)
+  const statement = node.children[0] as ASTNode
+  expect(statement.children.length).toBe(3)
 
   // Operator is recorded correctly, wrapped in a node
-  expect(node.children[2].type).toBe(AbstractSyntaxType.EXPR)
+  expect(statement.children[2].type).toBe(AbstractSyntaxType.EXPR)
 
-  const opToken = getToken(node, 'children[2].children[0]')
+  const opToken = getToken(statement, 'children[2].children[0]')
   expect(opToken.type).toBe(TokenType.String)
   expect(opToken.value).toBe(`"foo"`)
 })
@@ -151,4 +170,65 @@ test('astToString can correctly convert tokens', () => {
   const { node } = ast(tokens)
 
   expect(astToString(node)).toBe('message.event')
+})
+
+test('we can find `or` conditionals', () => {
+  const { tokens } = lex('type = "track" or type = "identify"')
+  const { node, error } = ast(tokens)
+  expect(error).toBeUndefined()
+
+  // <statement> <conditional> <statement>
+  expect(node.children.length).toBe(3)
+  expect(node.children[0].type).toBe(AbstractSyntaxType.STATEMENT)
+  expect(node.children[1].type).toBe(AbstractSyntaxType.CONDITIONAL)
+  expect(node.children[2].type).toBe(AbstractSyntaxType.STATEMENT)
+
+  const conditional = getToken(node, 'children[1].children[0]')
+  expect(conditional).toEqual(t.Conditional('or'))
+})
+
+test('we can find `and` conditionals', () => {
+  const { tokens } = lex('type = "track" and type = "identify"')
+  const { node, error } = ast(tokens)
+  expect(error).toBeUndefined()
+
+  // <statement> <conditional> <statement>
+  expect(node.children.length).toBe(3)
+  expect(node.children[0].type).toBe(AbstractSyntaxType.STATEMENT)
+  expect(node.children[1].type).toBe(AbstractSyntaxType.CONDITIONAL)
+  expect(node.children[2].type).toBe(AbstractSyntaxType.STATEMENT)
+
+  const conditional = getToken(node, 'children[1].children[0]')
+  expect(conditional).toEqual(t.Conditional('and'))
+})
+
+test('we can find many part statements', () => {
+  const { tokens } = lex(
+    `type = "track" and type = "identify" or foo = "dogs" and cats = "bloop" or type = "apples"`
+  )
+  const { node, error } = ast(tokens)
+  expect(error).toBeUndefined()
+
+  // <statement> <cond> <statement> <cond> <statement> <cond> <statement> <cond> <statement>
+  expect(node.children.length).toBe(9)
+  const types = node.children.map(({ type }) => type)
+  expect(types).toEqual([
+    AbstractSyntaxType.STATEMENT,
+    AbstractSyntaxType.CONDITIONAL,
+    AbstractSyntaxType.STATEMENT,
+    AbstractSyntaxType.CONDITIONAL,
+    AbstractSyntaxType.STATEMENT,
+    AbstractSyntaxType.CONDITIONAL,
+    AbstractSyntaxType.STATEMENT,
+    AbstractSyntaxType.CONDITIONAL,
+    AbstractSyntaxType.STATEMENT
+  ])
+})
+
+test('We can convert conditional statements from ast nodes back to strings', () => {
+  const { tokens } = lex('type = "track" or type = "identify"')
+  const { node } = ast(tokens)
+
+  expect(node.children.length).toBe(3)
+  expect(astToString(node)).toBe('type = "track" or type = "identify"')
 })

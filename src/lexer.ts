@@ -70,7 +70,7 @@ export class Lexer {
       }
 
       if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
-        tokens.push(this.lexOperator(char))
+        tokens.push(this.lexOperatorOrConditional(char))
         continue
       }
 
@@ -169,7 +169,7 @@ export class Lexer {
     return t.Number(previous + str)
   }
 
-  private lexOperator(previous: string): Token {
+  private lexOperatorOrConditional(previous: string): Token {
     // =
     if (previous === '=') {
       return t.Operator('=')
@@ -187,7 +187,7 @@ export class Lexer {
     // and
     if (previous === 'a') {
       if (this.accept('nd')) {
-        return t.Operator('and')
+        return t.Conditional('and')
       }
 
       return this.lexIdent(previous)
@@ -196,7 +196,7 @@ export class Lexer {
     // or
     if (previous === 'o') {
       if (this.accept('r')) {
-        return t.Operator('or')
+        return t.Conditional('or')
       }
 
       return this.lexIdent(previous)
