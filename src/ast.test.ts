@@ -152,3 +152,11 @@ test('astToString can correctly convert tokens', () => {
 
   expect(astToString(node)).toBe('message.event')
 })
+
+// test('we can parse and or statements', () => {
+//   const { tokens } = lex('type = "track" or type = "identify"')
+//   const { node } = ast(tokens)
+
+//   expect(node.children.length).toBe(3)
+//   expect(astToString(node)).toBe('type = "track" or type = "identify"')
+// })

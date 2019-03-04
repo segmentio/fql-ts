@@ -6,7 +6,7 @@ export enum AbstractSyntaxType {
   PATH = 'path',
   FUNC = 'func',
   ERR = 'err',
-  OPERATOR = 'OPERATOR'
+  OPERATOR = 'operator'
 }
 
 // Splits children into "leaves" and "nodes" so we get

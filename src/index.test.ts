@@ -14,7 +14,7 @@ test('we can use the imported lexer', () => {
     t.Ident('event'),
     t.Operator('='),
     t.String(`"Order Completed"`),
-    t.Operator('and'),
+    t.Conditional('and'),
     t.Ident('amount'),
     t.Operator('>'),
     t.Number('100'),
