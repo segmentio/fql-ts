@@ -16,9 +16,7 @@
   ],
   "devDependencies": {
     "@types/jest": "^23.3.10",
-    "@types/lodash": "^4.14.123",
     "jest": "^23.6.0",
-    "lodash": "^4.17.11",
     "ts-jest": "^23.10.5",
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.17.0",
@@ -52,5 +50,8 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS; printf \"\n\n\""
     }
   },
-  "dependencies": {}
+  "dependencies": {
+    "@types/lodash": "^4.14.123",
+    "lodash": "^4.17.11"
+  }
 }
