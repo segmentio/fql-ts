@@ -348,12 +348,7 @@ SupportedFunctions.forEach(({ expression, assertion }) => {
     const { node, error: error2 } = ast(tokens)
     expect(error2).toBeUndefined()
 
-    try {
-      assertion(node)
-    } catch (err) {
-      // Catch and return a saner error message, in case we get sketchy ReferenceErrors.
-      throw new Error(`AST for ${expression} does not match expected output.`)
-    }
+    assertion(node)
   })
 })
 
