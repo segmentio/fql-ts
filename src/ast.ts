@@ -237,8 +237,8 @@ export class Parser {
       throw new Error(`Unexpected token in function: "${leftParens.value}"`)
     }
 
-    const exprToTest = this.expr()
-    node.children.push(exprToTest)
+    const testExpr = this.expr()
+    node.children.push(testExpr)
 
     const comma = this.next()
     if (comma.type !== TokenType.Comma) {
