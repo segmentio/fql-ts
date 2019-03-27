@@ -339,13 +339,106 @@ const SupportedFunctions = [
     }
   },
   {
-    functionName: 'match',
     expression: 'match("peter richmond", "peter*")',
     assertion: (node: ASTNode) => {
-      const [ident, testString, substring] = get(node, 'children[0].children[0].children[0].children')
-      expect(ident).toEqual({ type: 'ident', value: 'match' })
-      expect(testString).toEqual({ type: 'string', value: `"peter richmond"` })
-      expect(substring).toEqual({ type: 'string', value: `"peter*"` })
+      const [match, testString, substring] = get(node, 'children[0].children[0].children[0].children')
+      expect(match).toEqual({ type: 'ident', value: 'match' })
+      expect(testString).toEqual(
+          {
+            'children': [
+              {
+                'type': 'string',
+                'value': '\"peter richmond\"'
+              }
+            ],
+            'type': 'expr'
+          }
+      )
+      expect(substring).toEqual(
+          {
+            'children': [
+              {
+                'type': 'string',
+                'value': '\"peter*\"'
+              }
+            ],
+            'type': 'expr'
+          }
+      )
+    }
+  },
+  {
+    expression: 'match(username, "peter*")',
+    assertion: (node: ASTNode) => {
+      const [match, username, peterGlob] = get(node, 'children[0].children[0].children[0].children')
+      expect(match).toEqual({ type: 'ident', value: 'match' })
+      expect(username).toEqual({
+        'children': [
+          {
+            'children': [
+              {
+                'type': 'ident',
+                'value': 'username'
+              }
+            ],
+            'type': 'path'
+          }
+        ],
+        'type': 'expr'
+      })
+      expect(peterGlob).toEqual(
+          {
+            'children': [
+              {
+                'type': 'string',
+                'value': '\"peter*\"'
+              }
+            ],
+            'type': 'expr'
+          }
+      )
+    }
+  },
+  {
+    expression: 'match(username.sha64, "peter*")',
+    assertion: (node: ASTNode) => {
+      const [match, usernameSha64, peterGlob] = get(node, 'children[0].children[0].children[0].children')
+      expect(match).toEqual({ type: 'ident', value: 'match' })
+      expect(usernameSha64).toEqual(
+          {
+            'children': [
+              {
+                'children': [
+                  {
+                    'type': 'ident',
+                    'value': 'username'
+                  },
+                  {
+                    'type': 'dot',
+                    'value': '.'
+                  },
+                  {
+                    'type': 'ident',
+                    'value': 'sha64'
+                  }
+                ],
+                'type': 'path'
+              }
+            ],
+            'type': 'expr'
+          }
+      )
+      expect(peterGlob).toEqual(
+          {
+            'children': [
+              {
+                'type': 'string',
+                'value': '\"peter*\"'
+              }
+            ],
+            'type': 'expr'
+          }
+      )
     }
   }
 ]
