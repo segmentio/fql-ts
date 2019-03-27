@@ -87,7 +87,7 @@ export function astToString(node: ASTNode): string {
     .join('')
 }
 
-function interleave<T>(array: Array<T>, thing: T): Array<T> {
+function interleave<T>(array: T[], thing: T): T[] {
   return [].concat(...array.map(obj => [obj, thing])).slice(0, -1)
 }
 
