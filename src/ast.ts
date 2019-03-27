@@ -225,7 +225,9 @@ export class Parser {
   }
 
   private func(previous: Token): ASTNode {
-    if (!(previous.type === 'ident' && previous.value === 'contains')) {
+    const supportedFuncs: string[] = ['contains', 'match']
+
+    if (!(previous.type === 'ident' && supportedFuncs.indexOf(previous.value) !== -1)) {
       throw new Error(`Function not supported: ${previous.value}`)
     }
 
