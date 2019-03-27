@@ -244,6 +244,16 @@ const SupportedFunctions = [
       expect(testString).toEqual({ type: 'string', value: `"evan conrad"` })
       expect(substring).toEqual({ type: 'string', value: `"evan"` })
     }
+  },
+  {
+    functionName: 'match',
+    expression: 'match("peter richmond", "peter*")',
+    assertion: (node: ASTNode) => {
+      const [ident, testString, substring] = get(node, 'children[0].children[0].children[0].children')
+      expect(ident).toEqual({ type: 'ident', value: 'match' })
+      expect(testString).toEqual({ type: 'string', value: `"peter richmond"` })
+      expect(substring).toEqual({ type: 'string', value: `"peter*"` })
+    }
   }
 ]
 
@@ -276,10 +286,6 @@ const UnsupportedFunctions = [
   {
     functionName: 'typeof',
     expression: 'typeof("pikachu")'
-  },
-  {
-    functionName: 'match',
-    expression: 'match("asdf", "asdf")'
   },
   {
     functionname: 'random',
