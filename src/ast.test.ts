@@ -236,31 +236,119 @@ test('We can convert conditional statements from ast nodes back to strings', () 
 
 const SupportedFunctions = [
   {
-    functionName: 'contains',
     expression: 'contains("evan conrad", "evan")',
     assertion: (node: ASTNode) => {
-      const [ident, testString, substring] = get(node, 'children[0].children[0].children[0].children')
-      expect(ident).toEqual({ type: 'ident', value: 'contains' })
-      expect(testString).toEqual({ type: 'string', value: `"evan conrad"` })
-      expect(substring).toEqual({ type: 'string', value: `"evan"` })
+      const [contains, testString, substring] = get(node, 'children[0].children[0].children[0].children')
+      expect(contains).toEqual({ type: 'ident', value: 'contains' })
+      expect(testString).toEqual(
+        {
+          'children': [
+            {
+              'type': 'string',
+              'value': '\"evan conrad\"'
+            }
+          ],
+          'type': 'expr'
+        }
+      )
+      expect(substring).toEqual(
+        {
+          'children': [
+            {
+              'type': 'string',
+              'value': '\"evan\"'
+            }
+          ],
+          'type': 'expr'
+        }
+      )
+    }
+  },
+  {
+    expression: 'contains(event, "Completed")',
+    assertion: (node: ASTNode) => {
+      const [contains, event, completed] = get(node, 'children[0].children[0].children[0].children')
+      expect(contains).toEqual({ type: 'ident', value: 'contains' })
+      expect(event).toEqual({
+        'children': [
+          {
+            'children': [
+              {
+                'type': 'ident',
+                'value': 'event'
+              }
+            ],
+            'type': 'path'
+          }
+        ],
+        'type': 'expr'
+      })
+      expect(completed).toEqual(
+        {
+          'children': [
+            {
+              'type': 'string',
+              'value': '\"Completed\"'
+            }
+          ],
+          'type': 'expr'
+        }
+      )
+    }
+  },
+  {
+    expression: 'contains(event.userId, "sloth")',
+    assertion: (node: ASTNode) => {
+      const [contains, eventUserId, sloth] = get(node, 'children[0].children[0].children[0].children')
+      expect(contains).toEqual({ type: 'ident', value: 'contains' })
+      expect(eventUserId).toEqual(
+        {
+          'children': [
+            {
+              'children': [
+                {
+                  'type': 'ident',
+                  'value': 'event'
+                },
+                {
+                  'type': 'dot',
+                  'value': '.'
+                },
+                {
+                  'type': 'ident',
+                  'value': 'userId'
+                }
+              ],
+              'type': 'path'
+            }
+          ],
+          'type': 'expr'
+        }
+      )
+      expect(sloth).toEqual(
+        {
+          'children': [
+            {
+              'type': 'string',
+              'value': '\"sloth\"'
+            }
+          ],
+          'type': 'expr'
+        }
+      )
     }
   }
 ]
 
-SupportedFunctions.forEach(({ functionName, expression, assertion }) => {
-  test(`it works with ${functionName}() `, () => {
+SupportedFunctions.forEach(({ expression, assertion }) => {
+  test(`it works for ${expression}`, () => {
     const { tokens, error } = lex(expression)
     expect(error).toBeUndefined()
 
     const { node, error: error2 } = ast(tokens)
     expect(error2).toBeUndefined()
 
-    try {
-      assertion(node)
-    } catch (err) {
-      // Catch and return a saner error message, in case we get sketchy ReferenceErrors.
-      throw new Error(`AST for ${functionName} does not match expected output.`)
-    }
+    assertion(node)
   })
 })
 
@@ -287,10 +375,10 @@ const UnsupportedFunctions = [
   }
 ]
 
-UnsupportedFunctions.forEach(({ functionName, expression }) => {
-  test(`it doesn't work with ${functionName}() `, () => {
+UnsupportedFunctions.forEach(({ expression }) => {
+  test(`it doesn't work with ${expression}`, () => {
     const { tokens, error } = lex(expression)
-    const { error: error2 } = ast(tokens)
-    expect(error || error2).toBeTruthy()
+    const { error: secondError } = ast(tokens)
+    expect(error || secondError).toBeTruthy()
   })
 })

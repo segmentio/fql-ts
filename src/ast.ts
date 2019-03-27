@@ -237,12 +237,18 @@ export class Parser {
       throw new Error(`Unexpected token in function: "${leftParens.value}"`)
     }
 
-    const testString = this.next()
-    if (testString.type !== TokenType.String) {
-      throw new Error(`Unexpected token in function: "${testString.value}"`)
+    // Left operand can be a string or path.
+    const leftOperand = newNode(AbstractSyntaxType.EXPR)
+    const upcoming = this.peek()
+    if (upcoming.type === TokenType.String) {
+      leftOperand.children.push(this.next())
+    } else if (upcoming.type === TokenType.Ident) {
+      leftOperand.children.push(this.path(this.next()))
+    } else {
+      throw new Error(`Unexpected token in function: "${upcoming.value}"`)
     }
 
-    node.children.push(testString)
+    node.children.push(leftOperand)
 
     const comma = this.next()
     if (comma.type !== TokenType.Comma) {
@@ -250,11 +256,13 @@ export class Parser {
     }
 
     const substring = this.next()
-    if (testString.type !== TokenType.String) {
+    if (substring.type !== TokenType.String) {
       throw new Error(`Unexpected token in function: "${substring.value}"`)
     }
 
-    node.children.push(substring)
+    const substringNode: ASTNode = newNode(AbstractSyntaxType.EXPR)
+    substringNode.children.push(substring)
+    node.children.push(substringNode)
 
     const rightParens = this.next()
     if (rightParens.type !== TokenType.ParenRight) {
