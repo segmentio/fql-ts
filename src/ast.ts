@@ -188,7 +188,7 @@ export class Parser {
 
     // Paths or functions
     if (upcoming.type === TokenType.Ident) {
-      node.children.push(this.pathOrFunc(upcoming))
+      node.children.push(this.pathOrFunc(this.next()))
       return node
     }
 
@@ -204,9 +204,9 @@ export class Parser {
 
   // things like `message.event` or `contains(...)`
   private pathOrFunc(previous: Token): ASTNode {
-    const id = this.next()
+    const nextToken = this.peek()
 
-    if (id.type === TokenType.ParenLeft) {
+    if (nextToken.type === TokenType.ParenLeft) {
       return this.func(previous)
     }
 
@@ -225,7 +225,43 @@ export class Parser {
   }
 
   private func(previous: Token): ASTNode {
-    throw new ParserError(`${previous} func Not yet supported`)
+    if (!(previous.type === 'ident' && previous.value === 'contains')) {
+      throw new Error(`Function not supported: ${previous.value}`)
+    }
+
+    const node: ASTNode = newNode(AbstractSyntaxType.FUNC)
+    node.children.push(previous)
+
+    const leftParens = this.next()
+    if (leftParens.type !== TokenType.ParenLeft) {
+      throw new Error(`Unexpected token in function: "${leftParens.value}"`)
+    }
+
+    const testString = this.next()
+    if (testString.type !== TokenType.String) {
+      throw new Error(`Unexpected token in function: "${testString.value}"`)
+    }
+
+    node.children.push(testString)
+
+    const comma = this.next()
+    if (comma.type !== TokenType.Comma) {
+      throw new Error(`Unexpected token in function: "${comma.value}"`)
+    }
+
+    const substring = this.next()
+    if (testString.type !== TokenType.String) {
+      throw new Error(`Unexpected token in function: "${substring.value}"`)
+    }
+
+    node.children.push(substring)
+
+    const rightParens = this.next()
+    if (rightParens.type !== TokenType.ParenRight) {
+      throw new Error(`Unexpected token in function: ${rightParens.value}`)
+    }
+
+    return node
   }
 
   private list(): ASTNode {
