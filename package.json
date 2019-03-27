@@ -51,7 +51,7 @@
     }
   },
   "dependencies": {
-    "@types/lodash": "^4.14.123",
+    "@types/lodash": "^4.14.121",
     "lodash": "^4.17.11"
   }
 }
