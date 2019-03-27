@@ -2,6 +2,7 @@ import ast, { AbstractSyntaxType, astToTokens, astToString, isASTNode, ASTNode }
 import lex from './lexer'
 import { TokenType, t } from './token'
 import { getASTNode, getToken } from './access'
+import { get } from 'lodash'
 
 test('root node has root type', () => {
   const { tokens } = lex(`"foobang"`)
@@ -231,4 +232,65 @@ test('We can convert conditional statements from ast nodes back to strings', () 
 
   expect(node.children.length).toBe(3)
   expect(astToString(node)).toBe('type = "track" or type = "identify"')
+})
+
+const SupportedFunctions = [
+  {
+    functionName: 'contains',
+    expression: 'contains("evan conrad", "evan")',
+    assertion: (node: ASTNode) => {
+      const [ident, testString, substring] = get(node, 'children[0].children[0].children[0].children')
+      expect(ident).toEqual({ type: 'ident', value: 'contains' })
+      expect(testString).toEqual({ type: 'string', value: `"evan conrad"` })
+      expect(substring).toEqual({ type: 'string', value: `"evan"` })
+    }
+  }
+]
+
+SupportedFunctions.forEach(({ functionName, expression, assertion }) => {
+  test(`it works with ${functionName}() `, () => {
+    const { tokens, error } = lex(expression)
+    expect(error).toBeUndefined()
+
+    const { node, error: error2 } = ast(tokens)
+    expect(error2).toBeUndefined()
+
+    try {
+      assertion(node)
+    } catch (err) {
+      // Catch and return a saner error message, in case we get sketchy ReferenceErrors.
+      throw new Error(`AST for ${functionName} does not match expected output.`)
+    }
+  })
+})
+
+const UnsupportedFunctions = [
+  {
+    functionName: 'length',
+    expression: 'length("blah")'
+  },
+  {
+    functionName: 'lowercase',
+    expression: 'lowercase("WHYYYYY")'
+  },
+  {
+    functionName: 'typeof',
+    expression: 'typeof("pikachu")'
+  },
+  {
+    functionName: 'match',
+    expression: 'match("asdf", "asdf")'
+  },
+  {
+    functionname: 'random',
+    expression: 'random(50)'
+  }
+]
+
+UnsupportedFunctions.forEach(({ functionName, expression }) => {
+  test(`it doesn't work with ${functionName}() `, () => {
+    const { tokens, error } = lex(expression)
+    const { error: error2 } = ast(tokens)
+    expect(error || error2).toBeTruthy()
+  })
 })
