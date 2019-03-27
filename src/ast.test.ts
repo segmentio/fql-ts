@@ -166,6 +166,13 @@ test('astToTokens can correctly convert to tokens', () => {
   expect(astToTokens(node)).toEqual(tokens)
 })
 
+test('astToTokens handles functions correctly', () => {
+  const { tokens } = lex(`contains("Kelly", "Kel")`)
+  const { node } = ast(tokens)
+
+  expect(astToTokens(node)).toEqual(tokens)
+})
+
 test('astToString can correctly convert tokens', () => {
   const { tokens } = lex('message.event')
   const { node } = ast(tokens)
