@@ -1,6 +1,6 @@
 {
   "name": "@segment/fql",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "main": "dist/index.js",
   "browser": "dist/index.js",
   "bin": "dist/index.js",
