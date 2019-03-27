@@ -98,7 +98,7 @@ function traverseAstForTokens(tree: ASTNode): Token[] {
     if (isASTNode(child)) {
       const moreTokens = traverseAstForTokens(child)
       if (child.type === 'func') {
-        // AST strips away parentheses and comma,
+        // AST strips away parentheses and commas,
         // add them back for tokens.
         const [func, ...operands] = moreTokens
         const evenMoreTokens = [
