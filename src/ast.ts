@@ -144,7 +144,7 @@ export class Parser {
       return node
     }
 
-    throw new ParserError(`Unexpected token in statement: '${JSON.stringify(this.peek(), null, 4)}' '${JSON.stringify(node.children, null, 4)}'`)
+    throw new ParserError(`Unexpected token in statement: '${this.peek()}'`)
   }
 
   // Wrapped in a leaf so we get a clear ordering
