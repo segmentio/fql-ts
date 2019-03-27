@@ -87,12 +87,30 @@ export function astToString(node: ASTNode): string {
     .join('')
 }
 
+function interleave<T>(array: Array<T>, thing: T): Array<T> {
+  return [].concat(...array.map(obj => [obj, thing])).slice(0, -1)
+}
+
 function traverseAstForTokens(tree: ASTNode): Token[] {
   let tokens = []
 
   for (const child of tree.children) {
     if (isASTNode(child)) {
-      tokens = tokens.concat(traverseAstForTokens(child))
+      const moreTokens = traverseAstForTokens(child)
+      if (child.type === 'func') {
+        // AST strips away parentheses and comma,
+        // add them back for tokens.
+        const [func, ...operands] = moreTokens
+        const evenMoreTokens = [
+          func,
+          t.ParenLeft(),
+          ...interleave(operands, t.Comma()),
+          t.ParenRight()
+        ]
+        tokens = tokens.concat(evenMoreTokens)
+      } else {
+        tokens = tokens.concat(moreTokens)
+      }
     } else if (isToken(child)) {
       tokens.push(child)
     }
@@ -225,9 +243,7 @@ export class Parser {
   }
 
   private func(previous: Token): ASTNode {
-    const supportedFuncs: string[] = ['contains', 'match']
-
-    if (!(previous.type === 'ident' && supportedFuncs.indexOf(previous.value) !== -1)) {
+    if (!(previous.type === 'ident' && previous.value === 'contains')) {
       throw new Error(`Function not supported: ${previous.value}`)
     }
 
