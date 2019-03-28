@@ -166,8 +166,15 @@ test('astToTokens can correctly convert to tokens', () => {
   expect(astToTokens(node)).toEqual(tokens)
 })
 
-test('astToTokens handles functions correctly', () => {
+test('astToTokens correctly handles functions', () => {
   const { tokens } = lex(`contains("Kelly", "Kel")`)
+  const { node } = ast(tokens)
+
+  expect(astToTokens(node)).toEqual(tokens)
+})
+
+test('astToTokens correctly handles functions with paths', () => {
+  const { tokens } = lex(`contains(properties.foo.bar.baz, "Kel")`)
   const { node } = ast(tokens)
 
   expect(astToTokens(node)).toEqual(tokens)
@@ -178,6 +185,20 @@ test('astToString can correctly convert tokens', () => {
   const { node } = ast(tokens)
 
   expect(astToString(node)).toBe('message.event')
+})
+
+test('astToString correctly handles functions', () => {
+  const { tokens } = lex(`contains("Kelly", "Kel")`)
+  const { node } = ast(tokens)
+
+  expect(astToString(node)).toEqual(`contains("Kelly","Kel")`)
+})
+
+test('astToString correctly handles functions with paths', () => {
+  const { tokens } = lex(`contains(event.foo.bar.baz, "Kel")`)
+  const { node } = ast(tokens)
+
+  expect(astToString(node)).toEqual(`contains(event.foo.bar.baz,"Kel")`)
 })
 
 test('we can find `or` conditionals', () => {
