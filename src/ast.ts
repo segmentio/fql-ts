@@ -104,10 +104,12 @@ function traverseFunctionNodeForTokens(func: ASTNode): Token[] {
   })
   operandTokens = interleave(operandTokens, t.Comma())
 
+  const flattenedOperandTokens = [].concat(...operandTokens)
+
   return [
     functionIdentifier,
     t.ParenLeft(),
-    ...[].concat(...operandTokens),
+    ...flattenedOperandTokens,
     t.ParenRight()
   ]
 }
