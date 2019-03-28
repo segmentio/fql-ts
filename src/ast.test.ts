@@ -262,6 +262,21 @@ test('We can convert conditional statements from ast nodes back to strings', () 
   expect(astToString(node)).toBe('type = "track" or type = "identify"')
 })
 
+;[
+  `contains("Evan Conrad", "Evan") and event = "foo"`,
+  `contains("Evan Conrad", "Evan") or event = "foo"`,
+  `event = "foo" and contains("Evan Conrad", "Evan")`,
+  `event = "foo" or contains("Evan Conrad", "Evan")`,
+].forEach(fql => {
+  test(`conditional statement with function: ${fql}`, () => {
+    const { tokens, error } = lex(fql)
+    expect(error).toBeUndefined()
+
+    const { error: secondError } = ast(tokens)
+    expect(secondError).toBeUndefined()
+  })
+})
+
 const SupportedFunctions = [
   {
     expression: 'contains("evan conrad", "evan")',

@@ -165,7 +165,8 @@ export class Parser {
 
   private statement(): ASTNode {
     const node: ASTNode = newNode(AbstractSyntaxType.STATEMENT)
-    node.children.push(this.expr())
+    const expr = this.expr()
+    node.children.push(expr)
 
     if (this.peek().type === TokenType.EOS) {
       return node
@@ -174,6 +175,12 @@ export class Parser {
     if (this.peek().type === TokenType.Operator) {
       node.children.push(this.operator())
       node.children.push(this.expr())
+      return node
+    }
+
+    const [firstChild] = expr.children
+    const exprIsFunc = firstChild && firstChild.type === AbstractSyntaxType.FUNC
+    if (exprIsFunc && this.peek().type === TokenType.Conditional) {
       return node
     }
 
