@@ -91,24 +91,39 @@ function interleave<T>(array: T[], thing: T): T[] {
   return [].concat(...array.map(obj => [obj, thing])).slice(0, -1)
 }
 
+// AST strips away parentheses and commas,
+// add them back for token representation.
+function traverseFunctionNodeForTokens(func: ASTNode): Token[] {
+  const [functionIdentifier, ...operands] = func.children
+
+  let operandTokens: Array<Token | Token[]> = operands.map(operand => {
+    if ('children' in operand) {
+      return traverseAstForTokens(operand)
+    }
+    return operand
+  })
+  operandTokens = interleave(operandTokens, t.Comma())
+
+  const flattenedOperandTokens = [].concat(...operandTokens)
+
+  return [
+    functionIdentifier,
+    t.ParenLeft(),
+    ...flattenedOperandTokens,
+    t.ParenRight()
+  ]
+}
+
 function traverseAstForTokens(tree: ASTNode): Token[] {
   let tokens = []
 
   for (const child of tree.children) {
     if (isASTNode(child)) {
-      const moreTokens = traverseAstForTokens(child)
       if (child.type === 'func') {
-        // AST strips away parentheses and commas,
-        // add them back for tokens.
-        const [func, ...operands] = moreTokens
-        const evenMoreTokens = [
-          func,
-          t.ParenLeft(),
-          ...interleave(operands, t.Comma()),
-          t.ParenRight()
-        ]
-        tokens = tokens.concat(evenMoreTokens)
+        const moreTokens = traverseFunctionNodeForTokens(child)
+        tokens = tokens.concat(moreTokens)
       } else {
+        const moreTokens = traverseAstForTokens(child)
         tokens = tokens.concat(moreTokens)
       }
     } else if (isToken(child)) {
