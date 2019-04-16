@@ -79,8 +79,8 @@ export class Lexer {
         continue
       }
 
-      if (char === '"') {
-        tokens.push(this.lexString())
+      if (char === '"' || char === '\'') {
+        tokens.push(this.lexString(char))
         continue
       }
 
@@ -118,9 +118,10 @@ export class Lexer {
     }
   }
 
-  private lexString(): Token {
+  private lexString(openQuote: string): Token {
     let str = ''
-    while (this.peek() !== '"') {
+    // Looking for closing string of same type of quote (single or double)
+    while (this.peek() !== openQuote) {
       const { char, isEOS } = this.next()
       str += char
 
@@ -133,8 +134,8 @@ export class Lexer {
       }
     }
 
-    this.accept('"') // Eat the last quote
-    return t.String(`"${str}"`)
+    this.accept(openQuote) // Eat the last quote
+    return t.String(`${openQuote}${str}${openQuote}`)
   }
 
   private lexNumber(previous: string): Token {
