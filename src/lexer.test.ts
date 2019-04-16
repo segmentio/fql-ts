@@ -128,7 +128,11 @@ test('Lexer passes Strings fixtures', () => {
     fix('"d"', [t.String('"d"'), t.EOS()], false),
     fix('"and"', [t.String('"and"'), t.EOS()], false),
     fix('"or and"', [t.String('"or and"'), t.EOS()], false),
-    fix('"a" "b"', [t.String('"a"'), t.String('"b"'), t.EOS()], false)
+    fix('"a" "b"', [t.String('"a"'), t.String('"b"'), t.EOS()], false),
+    fix('\'a\'', [t.String('\'a\''), t.EOS()], false),
+    fix('\'and\'', [t.String('\'and\''), t.EOS()], false),
+    fix('\'or and\'', [t.String('\'or and\''), t.EOS()], false),
+    fix('\'a\' \'b\'', [t.String('\'a\''), t.String('\'b\''), t.EOS()], false)
   ])
 })
 
