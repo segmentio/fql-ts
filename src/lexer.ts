@@ -228,7 +228,16 @@ export class Lexer {
   private lexIdent(previous: string): Token {
     let str = ''
     while (isIdent(this.peek())) {
-      const { char } = this.next()
+      var { char } = this.next()
+
+      // Allow escaping of any character except EOS
+      if (char == '\\') {
+        if (this.peek() == EOS_FLAG) {
+          throw new LexerError('expected character after escape character, got EOS', this.cursor)
+        }
+        char = this.next().char
+      }
+
       str += char
 
       if (str.length >= MAXIMUM_INDENT_LENGTH) {

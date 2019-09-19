@@ -25,7 +25,7 @@ export function isIdent(c: string): boolean {
     return false
   }
 
-  return isAlpha(c) || isNumber(c) || c === '_' || c === '-'
+  return isAlpha(c) || isNumber(c) || c === '_' || c === '-' || c === '\\'
 }
 
 export function isTerminator(c: string): boolean {
