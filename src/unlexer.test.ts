@@ -8,6 +8,12 @@ test('Unlexer can convert tokens into a string', () => {
   expect(str).toEqual('message = 20')
 })
 
+test('Unlexer escapes', () => {
+  const str = unlex([t.Ident('a \\ b $')]).code
+
+  expect(str).toEqual('a\\ \\\\\\ b\\ \\$')
+})
+
 test('Unlexer and lexer play nicely together', () => {
   const code = 'message = 20'
   expect(unlex(lex(code).tokens).code).toBe(code)

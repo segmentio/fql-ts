@@ -1,4 +1,5 @@
 import { Token, TokenType } from './token'
+import { isIdent } from './strings'
 
 export class UnlexerError extends Error {
   constructor(public message: string) {
@@ -42,8 +43,23 @@ export default function unlex(tokens: Token[]): UnLexResponse {
       continue
     }
 
-    str += ' ' + token.value
+    if (token.type === TokenType.Ident) {
+      str += ' ' + escape(token.value)
+    } else {
+      str += ' ' + token.value
+    }
   }
 
   return { code: str.trim() }
+}
+
+function escape(str: string): string {
+  let escaped = ''
+  for (const c of str) {
+    if (!isIdent(c) || c == '\\') {
+      escaped += '\\'
+    }
+    escaped += c
+  }
+  return escaped
 }

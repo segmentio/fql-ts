@@ -39,6 +39,8 @@ test('Lexer passes error fixtures', () => {
     fix('5.0.', [], true),
     fix('5.0.0.0', [], true),
     fix('!', [], true),
+    fix('abc\\', [], true),
+    fix('abc/', [], true),
 
     // Invalid characters
     fix('$', [], true),
@@ -46,7 +48,6 @@ test('Lexer passes error fixtures', () => {
     fix('#', [], true),
     fix('*', [], true),
     fix('`', [], true),
-    fix('\\', [], true),
     fix('/', [], true)
   ])
 })
@@ -76,7 +77,10 @@ test('Lexer passes ident fixtures', () => {
 
     // Dangerous idents for stupid javascript reasons
     fix('Infinity', [t.Ident('Infinity'), t.EOS()], false),
-    fix('undefined', [t.Ident('undefined'), t.EOS()], false)
+    fix('undefined', [t.Ident('undefined'), t.EOS()], false),
+
+    // Escaped idents
+    fix('a\\ b\\$c\\.', [t.Ident('a b$c.'), t.EOS()], false),
   ])
 })
 
