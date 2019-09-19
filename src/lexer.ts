@@ -228,7 +228,7 @@ export class Lexer {
   private lexIdent(previous: string): Token {
     let str = ''
     while (isIdent(this.peek())) {
-      var { char } = this.next()
+      let { char } = this.next()
 
       // Allow escaping of any character except EOS
       if (char == '\\') {
