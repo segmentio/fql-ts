@@ -37,16 +37,15 @@ export default function unlex(tokens: Token[]): UnLexResponse {
       continue
     }
 
-    // Don't add unnecessary spaces after dots
-    if (i !== 0 && tokens[i - 1].type === TokenType.Dot) {
-      str += token.value
-      continue
+    // Add a space, but not after dots
+    if (i > 0 && tokens[i - 1].type !== TokenType.Dot) {
+      str += ' '
     }
 
     if (token.type === TokenType.Ident) {
-      str += ' ' + escape(token.value)
+      str += escape(token.value)
     } else {
-      str += ' ' + token.value
+      str += token.value
     }
   }
 

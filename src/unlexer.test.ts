@@ -9,9 +9,8 @@ test('Unlexer can convert tokens into a string', () => {
 })
 
 test('Unlexer escapes', () => {
-  const str = unlex([t.Ident('a \\ b $')]).code
-
-  expect(str).toEqual('a\\ \\\\\\ b\\ \\$')
+  expect(unlex([t.Ident('a \\ b $')]).code).toEqual('a\\ \\\\\\ b\\ \\$')
+  expect(unlex([t.Ident('a'), t.Dot(), t.Ident('b c')]).code).toEqual('a.b\\ c')
 })
 
 test('Unlexer and lexer play nicely together', () => {
