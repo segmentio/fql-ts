@@ -17,6 +17,7 @@
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "jest": "^23.6.0",
+    "prettier": "^2.1.2",
     "ts-jest": "^23.10.5",
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.17.0",
@@ -25,7 +26,8 @@
   "prettier": {
     "semi": false,
     "singleQuote": true,
-    "printWidth": 100
+    "printWidth": 100,
+    "tabWidth": 2
   },
   "lint-staged": {
     "linters": {
