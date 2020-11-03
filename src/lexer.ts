@@ -231,8 +231,8 @@ export class Lexer {
       let { char } = this.next()
 
       // Allow escaping of any character except EOS
-      if (char == '\\') {
-        if (this.peek() == EOS_FLAG) {
+      if (char === '\\') {
+        if (this.peek() === EOS_FLAG) {
           throw new LexerError('expected character after escape character, got EOS', this.cursor)
         }
         char = this.next().char

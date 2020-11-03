@@ -14,7 +14,7 @@ export enum AbstractSyntaxType {
 // Splits children into "leaves" and "nodes" so we get
 // type safety and don't have to deal with union types
 export interface ASTNode {
-  children: Array<Token | ASTNode>
+  children: (Token | ASTNode)[]
   type: AbstractSyntaxType
 }
 
@@ -96,7 +96,7 @@ function interleave<T>(array: T[], thing: T): T[] {
 function traverseFunctionNodeForTokens(func: ASTNode): Token[] {
   const [functionIdentifier, ...operands] = func.children
 
-  let operandTokens: Array<Token | Token[]> = operands.map(operand => {
+  let operandTokens: (Token | Token[])[] = operands.map(operand => {
     if ('children' in operand) {
       return traverseAstForTokens(operand)
     }

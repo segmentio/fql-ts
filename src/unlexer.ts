@@ -55,7 +55,7 @@ export default function unlex(tokens: Token[]): UnLexResponse {
 function escape(str: string): string {
   let escaped = ''
   for (const c of str) {
-    if (!isIdent(c) || c == '\\') {
+    if (!isIdent(c) || c === '\\') {
       escaped += '\\'
     }
     escaped += c
