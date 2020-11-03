@@ -69,6 +69,15 @@ export class Lexer {
         continue
       }
 
+      if (char === '!') {
+        const nextChar = this.peek()
+
+        if (isAlpha(nextChar) || nextChar === '(') {
+          tokens.push(t.Operator('!'))
+          continue
+        }
+      }
+
       if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
         tokens.push(this.lexOperatorOrConditional(char))
         continue

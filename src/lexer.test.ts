@@ -243,3 +243,28 @@ test('Lexer passes new line fixtures', () => {
     )
   ])
 })
+
+test('Lexer passes negations', () => {
+  testFixtures([
+    fix('!true', [t.Operator('!'), t.Ident('true'), t.EOS()], false),
+    fix('!(event = "X")', [
+      t.Operator('!'),
+      t.ParenLeft(),
+      t.Ident('event'),
+      t.Operator('='),
+      t.String('"X"'),
+      t.ParenRight(),
+      t.EOS()
+    ], false),
+    fix('!contains(event, "X")', [
+      t.Operator('!'),
+      t.Ident('contains'),
+      t.ParenLeft(),
+      t.Ident('event'),
+      t.Comma(),
+      t.String('"X"'),
+      t.ParenRight(),
+      t.EOS()
+    ], false)
+  ])
+})
