@@ -78,7 +78,7 @@ export class Lexer {
         }
       }
 
-      if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
+      if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<' || char === '_') {
         tokens.push(this.lexOperatorOrConditional(char))
         continue
       }
@@ -112,7 +112,7 @@ export class Lexer {
         tokens.push(t.Comma())
         continue
       }
-
+      
       if (char === '(') {
         tokens.push(t.ParenLeft())
         continue

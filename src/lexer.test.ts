@@ -188,9 +188,9 @@ test('Lexer passes dot fixtures', () => {
 
 test('Lexer passes underscore fixtures', () => {
   testFixtures([
-    fix('_ab', [t.Underscore(), t.Ident('a'), t.Ident('b'), t.EOS()], false),
-    fix('a_b', [t.Ident('a'), t.Underscore(), t.Ident('b'), t.EOS()], false),
-    fix('ab_', [t.Ident('a'), t.Ident('b'), t.Underscore(), t.EOS()], false),
+    fix('_ab', [t.Ident('_ab'), t.EOS()], false),
+    fix('a_b', [t.Ident('a_b'), t.EOS()], false),
+    fix('ab_', [t.Ident('ab_'), t.EOS()], false),
   ])
 })
 
