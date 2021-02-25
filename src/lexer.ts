@@ -112,7 +112,7 @@ export class Lexer {
         tokens.push(t.Comma())
         continue
       }
-      
+
       if (char === '(') {
         tokens.push(t.ParenLeft())
         continue
