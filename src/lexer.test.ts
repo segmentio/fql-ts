@@ -186,6 +186,14 @@ test('Lexer passes dot fixtures', () => {
   ])
 })
 
+test('Lexer passes underscore fixtures', () => {
+  testFixtures([
+    fix('_ab', [t.Underscore(), t.Ident('a'), t.Ident('b'), t.EOS()], false),
+    fix('a_b', [t.Ident('a'), t.Underscore(), t.Ident('b'), t.EOS()], false),
+    fix('ab_', [t.Ident('a'), t.Ident('b'), t.Underscore(), t.EOS()], false),
+  ])
+})
+
 // Don't screw with any of the whitespace here, that's the point of the test
 test('Lexer passes new line fixtures', () => {
   testFixtures([

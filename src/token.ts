@@ -23,6 +23,7 @@ export enum TokenType {
   ParenLeft = 'parenleft',
   ParenRight = 'parenright',
   Comma = 'comma',
+  Underscore = 'underscore',
   EOS = 'eos'
 }
 
@@ -78,6 +79,10 @@ export const t = {
 
   Comma: (): Token => {
     return { type: TokenType.Comma, value: ',' }
+  },
+
+  Underscore: (): Token => {
+    return { type: TokenType.Underscore, value: '_' }
   },
 
   EOS: (): Token => {
