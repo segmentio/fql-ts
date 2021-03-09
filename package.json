@@ -4,7 +4,9 @@
   "main": "dist/cjs/index.js",
   "browser": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "bin": "dist/cjs/index.js",
+  "sideEffects": false,
   "scripts": {
     "test": "jest",
     "build": "rm -rf dist && tsc && tsc -p tsconfig.cjs.json",
