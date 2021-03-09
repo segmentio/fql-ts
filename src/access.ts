@@ -1,4 +1,4 @@
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { ASTNode } from './ast'
 import { Token } from './token'
 
