@@ -1,8 +1,17 @@
 import ast, { AbstractSyntaxType, astToTokens, astToString, isASTNode, ASTNode } from './ast'
 import lex from './lexer'
-import { TokenType, t } from './token'
-import { getASTNode, getToken } from './access'
+import { TokenType, Token, t } from './token'
 import { get } from 'lodash'
+
+// Assertively get a child as an ASTNode
+function getASTNode(arg: ASTNode, path: string): ASTNode {
+  return get(arg, path)
+}
+
+// Assertively get a child as a Token
+function getToken(arg: ASTNode, path: string): Token {
+  return get(arg, path)
+}
 
 test('root node has root type', () => {
   const { tokens } = lex(`"foobang"`)
