@@ -9,4 +9,3 @@ export {
   isASTNode,
   ASTNode
 } from './ast'
-export { getASTNode, getToken } from './access'
