@@ -78,7 +78,7 @@ export class Lexer {
         }
       }
 
-      if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<') {
+      if (isAlpha(char) || char === '!' || char === '=' || char === '>' || char === '<' || char === '\\' || char === '_') {
         tokens.push(this.lexOperatorOrConditional(char))
         continue
       }
@@ -235,9 +235,13 @@ export class Lexer {
   }
 
   private lexIdent(previous: string): Token {
+    /* this function differs from the go implementation in that the go impl
+     hasn't yet advanced the character so will do a peek/next loop.  here we
+     have already done a next() so need to check to see if the first char is
+     an escape sequence */
     let str = ''
-    while (isIdent(this.peek())) {
-      let { char } = this.next()
+    let char = previous
+    while (true) {
 
       // Allow escaping of any character except EOS
       if (char === '\\') {
@@ -252,6 +256,11 @@ export class Lexer {
       if (str.length >= MAXIMUM_INDENT_LENGTH) {
         throw new LexerError('unreasonable literal length', this.cursor)
       }
+
+      if (!isIdent(this.peek())) {
+        break
+      }
+      char = this.next().char
     }
 
     const comingUp: string = this.peek()
@@ -271,7 +280,7 @@ export class Lexer {
       )
     }
 
-    return t.Ident(previous + str)
+    return t.Ident(str)
   }
 
   /**
