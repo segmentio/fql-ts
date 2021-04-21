@@ -81,6 +81,10 @@ test('Lexer passes ident fixtures', () => {
 
     // Escaped idents
     fix('a\\ b\\$c\\.', [t.Ident('a b$c.'), t.EOS()], false),
+    fix('\\$a\\ b\\$c\\.', [t.Ident('$a b$c.'), t.EOS()], false),
+
+    // Underscores
+    fix('_a_b_c', [t.Ident('_a_b_c'), t.EOS()], false),
   ])
 })
 
