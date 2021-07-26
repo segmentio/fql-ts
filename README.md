@@ -16,7 +16,7 @@ also be used to give our FQL in-browser REPLs and integrate into existing toolin
 Install it with:
 
 ```
-yarn add @segment/fql
+yarn add @segment/fql-ts
 ```
 
 ### Lexing
@@ -24,7 +24,7 @@ yarn add @segment/fql
 To convert some code into some strings, you can use `lex`:
 
 ```js
-import { lex } from '@segment/fql'
+import { lex } from '@segment/fql-ts'
 
 const { tokens } = lex('message.event > 30')
 ```
@@ -46,7 +46,7 @@ In `fql-ts`, a token is an object with a `value` and an enum `type`.
 For example, a string like `"Order Completed"` has a token that looks like this:
 
 ```js
-import { types } from '@segment/fql'
+import { types } from '@segment/fql-ts'
 
 {
     type: types.String,
@@ -68,7 +68,7 @@ But `fql-ts` also comes with helper functions to create tokens. We can create
 that same String token with:
 
 ```js
-import { t } from '@segment/fql'
+import { t } from '@segment/fql-ts'
 
 t.String('"Order Completed"')
 ```
@@ -128,7 +128,7 @@ This is pretty helpful for _generating_ FQL code, either through UI pieces
 or programatically.
 
 ```js
-import { lex, unlex } from '@segment/fql'
+import { lex, unlex } from '@segment/fql-ts'
 
 const { tokens } = lex('some.code >= 30')
 const { code } = unlex(tokens)
@@ -147,7 +147,7 @@ const { error } = unlex(dangerousErrorTokens)
 We can create a typed AST from an array of tokens.
 
 ```js
-import { ast, lex } from '@segment/fql'
+import { ast, lex } from '@segment/fql-ts'
 
 const { tokens } = lex(`message = "foo"`)
 const { node } = ast(tokens)
@@ -193,7 +193,7 @@ interface Token {
 If something went wrong in the parsing, the AST will return an error and the last node will be of type `ERR`:
 
 ```js
-import { ast, lex } from '@segment/fql'
+import { ast, lex } from '@segment/fql-ts'
 
 const { tokens } = lex(`message = `)
 const { node, error } = ast(tokens)
@@ -253,7 +253,7 @@ node(expr)
 You can go from an AST to tokens pretty easily with `astToTokens`:
 
 ```js
-import { astToTokens, lex, ast } from '@segment/fql'
+import { astToTokens, lex, ast } from '@segment/fql-ts'
 
 const { tokens } = lex(`message = "foo"`)
 const { node } = ast(tokens)
