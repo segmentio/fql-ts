@@ -6,7 +6,7 @@ Language for filtering json streams
 <br><br>
 </p>
 
-`fql-ts` is a Typescript lexer for [Segment's](https://segment.com) [Filter Query Language](https://segment.com/docs/api/config-api/fql/) (FQL).
+`fql-ts` is a Typescript lexer for [Segment's](https://segment.com) [Filter Query Language](https://segment.com/docs/api/public-api/fql/) (FQL).
 
 The goal is to allow us to use FQL on the browser and generate React components on top of FQL. It could
 also be used to give our FQL in-browser REPLs and integrate into existing tooling.
