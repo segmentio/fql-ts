@@ -494,6 +494,79 @@ const SupportedFunctions = [
           }
       )
     }
+  },
+  {
+    expression: 'semver("1.0.1", ">=", "1.0.0")',
+    assertion: (node: ASTNode) => {
+      const [semver, version1, operator, version2] = get(node, 'children[0].children[0].children[0].children')
+      expect(semver).toEqual({ type: 'ident', value: 'semver' })
+      expect(version1).toEqual({
+        'children': [
+          {
+            'type': 'string',
+            'value': '"1.0.1"'
+          }
+        ],
+        'type': 'expr'
+      })
+      expect(operator).toEqual({
+        'children': [
+          {
+            'type': 'string',
+            'value': '">="'
+          }
+        ],
+        'type': 'expr'
+      })
+      expect(version2).toEqual({
+        'children': [
+          {
+            'type': 'string',
+            'value': '"1.0.0"'
+          }
+        ],
+        'type': 'expr'
+      })
+    }
+  },
+  {
+    expression: 'semver(app_version, ">=", "1.0.0")',
+    assertion: (node: ASTNode) => {
+      const [semver, appVersion, operator, version] = get(node, 'children[0].children[0].children[0].children')
+      expect(semver).toEqual({ type: 'ident', value: 'semver' })
+      expect(appVersion).toEqual({
+        'children': [
+          {
+            'children': [
+              {
+                'type': 'ident',
+                'value': 'app_version'
+              }
+            ],
+            'type': 'path'
+          }
+        ],
+        'type': 'expr'
+      })
+      expect(operator).toEqual({
+        'children': [
+          {
+            'type': 'string',
+            'value': '">="'
+          }
+        ],
+        'type': 'expr'
+      })
+      expect(version).toEqual({
+        'children': [
+          {
+            'type': 'string',
+            'value': '"1.0.0"'
+          }
+        ],
+        'type': 'expr'
+      })
+    }
   }
 ]
 

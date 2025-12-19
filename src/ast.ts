@@ -265,7 +265,7 @@ export class Parser {
   }
 
   private func(previous: Token): ASTNode {
-    const supportedFuncs: string[] = ['contains', 'match']
+    const supportedFuncs: string[] = ['contains', 'match', 'semver']
 
     if (!(previous.type === 'ident' && supportedFuncs.indexOf(previous.value) !== -1)) {
       throw new Error(`Function not supported: ${previous.value}`)
@@ -279,32 +279,28 @@ export class Parser {
       throw new Error(`Unexpected token in function: "${leftParens.value}"`)
     }
 
-    // Left operand can be a string or path.
-    const leftOperand = newNode(AbstractSyntaxType.EXPR)
-    const upcoming = this.peek()
-    if (upcoming.type === TokenType.String) {
-      leftOperand.children.push(this.next())
-    } else if (upcoming.type === TokenType.Ident) {
-      leftOperand.children.push(this.path(this.next()))
-    } else {
-      throw new Error(`Unexpected token in function: "${upcoming.value}"`)
+    // Parse function arguments
+    while (this.peek().type !== TokenType.ParenRight && this.peek().type !== TokenType.EOS) {
+      const argNode = newNode(AbstractSyntaxType.EXPR)
+      const upcoming = this.peek()
+
+      if (upcoming.type === TokenType.String) {
+        argNode.children.push(this.next())
+      } else if (upcoming.type === TokenType.Ident) {
+        argNode.children.push(this.path(this.next()))
+      } else {
+        throw new Error(`Unexpected token in function: "${upcoming.value}"`)
+      }
+
+      node.children.push(argNode)
+
+      // Check if there's a comma (more arguments) or closing parenthesis
+      if (this.peek().type === TokenType.Comma) {
+        this.next() // consume the comma
+      } else if (this.peek().type !== TokenType.ParenRight) {
+        throw new Error(`Unexpected token in function: "${this.peek().value}"`)
+      }
     }
-
-    node.children.push(leftOperand)
-
-    const comma = this.next()
-    if (comma.type !== TokenType.Comma) {
-      throw new Error(`Unexpected token in function: "${comma.value}"`)
-    }
-
-    const substring = this.next()
-    if (substring.type !== TokenType.String) {
-      throw new Error(`Unexpected token in function: "${substring.value}"`)
-    }
-
-    const substringNode: ASTNode = newNode(AbstractSyntaxType.EXPR)
-    substringNode.children.push(substring)
-    node.children.push(substringNode)
 
     const rightParens = this.next()
     if (rightParens.type !== TokenType.ParenRight) {
