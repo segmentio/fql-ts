@@ -4,29 +4,50 @@ on: [push]
 
 jobs:
   test-and-build:
-    runs-on: ubuntu-latest
+    # fql-ts is a public repo, so it runs on GitHub-hosted runners. Plain
+    # `ubuntu-latest` no longer gets allocated one — jobs sit queued forever.
+    # Public repos use the larger-runner labels. Verified: `ubuntu-latest`
+    # queued >6min with an empty runner group; `ubuntu-latest-large` picked up
+    # a runner in seconds.
+    runs-on: ubuntu-latest-large
 
     strategy:
       matrix:
         node-version: [20.10.0]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high --fail-on=upgradable
+      # TODO: re-enable Snyk scanning. This repo's Actions policy allows only
+      # GitHub-owned `actions/*` (`patterns_allowed: []`,
+      # `verified_allowed: false`), so referencing `snyk/actions/node` at all
+      # fails the whole run with `startup_failure` before any step executes.
+      # This is a SECURITY step — it must not stay disabled untracked.
+      #
+      # To restore: get `snyk/actions/*` added to the repo/org allowlist via the
+      # SSC Help portal, then uncomment. The ref below is already SHA-pinned to
+      # satisfy `sha_pinning_required: true` (it was previously `@master` — a
+      # mutable branch ref on a third-party action running with SNYK_TOKEN in
+      # scope, which is why it should not be restored as `@master`).
+      #
+      # Caveat for whoever re-enables it: this action is Docker-based and pulls
+      # the mutable `docker://snyk/snyk:node` image at runtime, so the SHA pin
+      # bounds the action code but not the scanner image.
+      #
+      # - name: Run Snyk to check for vulnerabilities
+      #   uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     args: --severity-threshold=high --fail-on=upgradable
 
       - name: Lint
         run: yarn lint
@@ -34,8 +55,18 @@ jobs:
       - name: Test
         run: yarn test --coverage
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: segmentio/fql-ts
+      # TODO: re-enable the Codecov upload. Blocked by the same Actions policy as
+      # the Snyk step above — `codecov/codecov-action` is not GitHub-owned, so
+      # referencing it fails the run at startup.
+      #
+      # Note `codecov.yml` sets non-informational gates (93.14% project / 80%
+      # patch). With no upload, those checks have no data to report against, so
+      # this must be restored before relying on coverage as a merge gate.
+      #
+      # To restore: get `codecov/codecov-action@*` allowlisted, then uncomment.
+      #
+      # - name: Upload coverage reports to Codecov
+      #   uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     slug: segmentio/fql-ts
