@@ -130,6 +130,41 @@ test('Lexer passes Number fixtures', () => {
   ])
 })
 
+test('Lexer passes digit-first ident fixtures', () => {
+  testFixtures([
+    // Identifiers may begin with digits: JSON property names are arbitrary
+    // customer data, not programmer-chosen symbols. These used to lex as a
+    // Number followed by a separate Ident, which then failed to parse.
+    fix('1val', [t.Ident('1val'), t.EOS()], false),
+    fix('123audience', [t.Ident('123audience'), t.EOS()], false),
+    fix('1_x_coffee_buyer', [t.Ident('1_x_coffee_buyer'), t.EOS()], false),
+    fix('1-x-coffee-buyer', [t.Ident('1-x-coffee-buyer'), t.EOS()], false),
+
+    // ...including as a segment of a dotted path
+    fix(
+      'properties.123audience',
+      [t.Ident('properties'), t.Dot(), t.Ident('123audience'), t.EOS()],
+      false
+    ),
+    fix(
+      'properties.1_x_coffee_buyer = true',
+      [
+        t.Ident('properties'),
+        t.Dot(),
+        t.Ident('1_x_coffee_buyer'),
+        t.Operator('='),
+        t.Ident('true'),
+        t.EOS()
+      ],
+      false
+    ),
+
+    // A purely numeric token is still a Number, not an Ident
+    fix('123', [t.Number('123'), t.EOS()], false),
+    fix('123 456', [t.Number('123'), t.Number('456'), t.EOS()], false)
+  ])
+})
+
 test('Lexer passes Strings fixtures', () => {
   testFixtures([
     // Strings
