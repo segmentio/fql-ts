@@ -176,7 +176,21 @@ export class Lexer {
       comingUp = this.peek()
     }
 
-    return t.Number(previous + str)
+    const token = previous + str
+
+    // What looked like a number is actually an identifier that begins with
+    // digits (e.g. "123audience", "1_x_coffee_buyer"). Hand the consumed
+    // digits to lexIdent as its prefix rather than emitting a Number and
+    // letting the rest of the identifier lex as a separate token.
+    //
+    // Guarded on the token containing a digit: the dispatcher also routes a
+    // bare sign here, so this keeps "-foo" behaving as it did instead of
+    // turning it into an identifier.
+    if (isIdent(this.peek()) && /[0-9]/.test(token)) {
+      return this.lexIdent(token)
+    }
+
+    return t.Number(token)
   }
 
   private lexOperatorOrConditional(previous: string): Token {
